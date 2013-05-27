@@ -12,24 +12,27 @@ public class NestedPanels
    //-----------------------------------------------------------------
    //  Presents two colored panels nested within a third.
    //-----------------------------------------------------------------
-   public static void main (String[] args)
+   
+	private static JPanel Panel1(int i1, int i2, Color C)
+	{
+	      JPanel subPanel1 = new JPanel();
+	      subPanel1.setPreferredSize (new Dimension(150, 100));
+	      subPanel1.setBackground (C);
+	      JLabel label1 = new JLabel ("One");
+	      subPanel1.add (label1);
+	      
+	      return subPanel1;
+	}
+	
+	public static void main (String[] args)
    {
       JFrame frame = new JFrame ("Nested Panels");
       frame.setDefaultCloseOperation (JFrame.EXIT_ON_CLOSE);
-
-      // Set up first subpanel
-      JPanel subPanel1 = new JPanel();
-      subPanel1.setPreferredSize (new Dimension(150, 100));
-      subPanel1.setBackground (Color.green);
-      JLabel label1 = new JLabel ("One");
-      subPanel1.add (label1);
-
-      // Set up second subpanel
-      JPanel subPanel2 = new JPanel();
-      subPanel2.setPreferredSize (new Dimension(150, 100));
-      subPanel2.setBackground (Color.red);
-      JLabel label2 = new JLabel ("Two");
-      subPanel2.add (label2);
+      JPanel subPanel1,subPanel2;
+      
+      subPanel1 = Panel1(150,100,Color.green);
+      subPanel2 = Panel1(150,100,Color.red);
+      
 
       // Set up primary panel
       JPanel primary = new JPanel();
