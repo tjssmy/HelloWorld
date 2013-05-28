@@ -8,19 +8,30 @@ import java.util.ArrayList;
 
 public class CardKeyword implements ItemListener {
 	JPanel cards; //a panel that uses CardLayout
-	final static String BUTTONPANEL = "Card with JButtons";
-	final static String TEXTPANEL = "Card with JTextField";
 
+	private static JPanel paraEntry(String Name) {
+		JPanel Entry = new JPanel();
+		Entry.setPreferredSize (new Dimension(350, 50));
+		Entry.setLayout(new GridLayout(1,2));
+		JButton JB = new JButton(Name);
+		JB.setText(Name);
+		Entry.add(JB);
+		Entry.add(new JTextField(10));
+		return Entry;
+	}
+
+	
 	public JPanel CardList (int n, String names[]) {
 		int j;
 		//Create the "cards".
 		JPanel card = new JPanel();
 		//    	card.setPreferredSize (new Dimension(350, 800));
 		card.setLayout(new GridLayout(n,1));
-
-		for (j = 1; j <= n; j++) {
-			//    		String name = new  String("Button " + Integer.toString(j)); 
-			card.add(new JButton(names[j-1]));
+		
+		for (j = 0; j < n; j++) {
+//			card.add(new JButton();
+			JPanel entry = paraEntry(names[j]);
+			card.add(entry);
 		}
 		return card;
 	}
@@ -30,21 +41,16 @@ public class CardKeyword implements ItemListener {
 			int nKeys, String Keys[], ArrayList<KeyData> KeyParas) {
 		//Put the JComboBox in a JPanel to get a nicer look.
 		JPanel comboBoxPane = new JPanel(); //use FlowLayout
-		
-		
-//		String comboBoxItems[] = { BUTTONPANEL, TEXTPANEL };
-		
-		
 		int j;
 		
 		JComboBox cb = new JComboBox(Keys);
 		cb.setEditable(false);
 		cb.addItemListener(this);
+		cb.setPreferredSize(new Dimension(200,20));
 		comboBoxPane.add(cb);
 
 		//Create the panel that contains the "cards".
 		cards = new JPanel(new CardLayout());
-
 		
 		for (j = 0; j < nKeys; j++) {
 			KeyData K = KeyParas.get(j);
@@ -56,21 +62,6 @@ public class CardKeyword implements ItemListener {
 			cards.add(card,name);
 		}
 			
-		
-//		ArrayList<String[]> names = new ArrayList<String[]>();
-//
-//		String names1[] = {"para1","para2","para3","para4","para5"};
-//		String names2[] = {"para1","para2","para3","para4","para5","para3","para4","para5"};
-//		names.add(names1);
-//		names.add(names2);
-//
-//		JPanel card1 = CardList(5,names.get(0));
-//		JPanel card2 = CardList(8,names.get(1));
-//
-//
-//		cards.add(card1, BUTTONPANEL);
-//		cards.add(card2, TEXTPANEL);
-
 		pane.add(comboBoxPane, BorderLayout.PAGE_START);
 		pane.add(cards, BorderLayout.CENTER);
 	}
@@ -104,6 +95,8 @@ public class CardKeyword implements ItemListener {
 		int j;
 		//Create and set up the window.
 		JFrame frame = new JFrame("CardLayoutDemo");
+		
+//		frame.setPreferredSize(new Dimension(350,800));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 
