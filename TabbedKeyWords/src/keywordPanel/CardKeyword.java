@@ -99,7 +99,8 @@ public class CardKeyword implements ItemListener {
 //		frame.setPreferredSize(new Dimension(350,800));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-
+		keywordData kData = new keywordData("file");
+		
 		//Create and set up the content pane.
 		CardKeyword demo = new CardKeyword();
 		int numKeys=5;
