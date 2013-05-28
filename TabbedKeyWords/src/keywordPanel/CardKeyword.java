@@ -37,7 +37,7 @@ public class CardKeyword implements ItemListener {
 	}
 
 
-	public void addComponentToPane(Container pane, 
+	public void addKeyWordPanel(Container pane, 
 			int nKeys, String Keys[], ArrayList<KeyData> KeyParas) {
 		//Put the JComboBox in a JPanel to get a nicer look.
 		JPanel comboBoxPane = new JPanel(); //use FlowLayout
@@ -91,7 +91,7 @@ public class CardKeyword implements ItemListener {
 	 * this method should be invoked from the
 	 * event dispatch thread.
 	 */
-	private static void createAndShowGUI() {
+	private static void createKeyWordPanel() {
 		int j;
 		//Create and set up the window.
 		JFrame frame = new JFrame("CardLayoutDemo");
@@ -116,7 +116,7 @@ public class CardKeyword implements ItemListener {
 			KeyParas.add(new KeyData(Keys[j],Paras[j],5));
 		}
 
-		demo.addComponentToPane(frame.getContentPane(),numKeys,Keys,KeyParas);
+		demo.addKeyWordPanel(frame.getContentPane(),numKeys,Keys,KeyParas);
 
 		//Display the window.
 		frame.pack();
@@ -144,7 +144,7 @@ public class CardKeyword implements ItemListener {
 		//creating and showing this application's GUI.
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				createAndShowGUI();
+				createKeyWordPanel();
 			}
 		});
 	}
