@@ -3,10 +3,10 @@ package keywordPanel;
 import java.util.ArrayList;
 
 public class keywordData {
-	static String FileName;
+	String FileName;
 	
 	public keywordData(String fname){
-		FileName = fname;
+		this.FileName = fname;
 	}
 	
 	public enum ParaType {
@@ -43,15 +43,15 @@ public class keywordData {
 	ArrayList<KeyData> Keys = new ArrayList<KeyData>();
 	ArrayList<String>  KeyNames = new ArrayList<String>();
 	
-	public static keywordData readKeyFile(){
-		keywordData Keys = new keywordData(FileName);
-		return Keys;
+	public static void readKeyFile(){
+//		keywordData Keys = new keywordData(FileName);
+//		return Keys;
 	}
 	
-	public keywordData testKeyFile(){
-		keywordData Keys = new keywordData("FileName");
-		Keys.numKeys = 5;
-		KeyNames[] = new String[Keys.numKeys];
+	public void testKeyFile(){
+//		keywordData Keys = new keywordData("FileName");
+		this.numKeys = 5;
+		
 		ArrayList<ParaData> Paras = new ArrayList<ParaData>();
 		
 		int NumParas = 6;
@@ -80,14 +80,17 @@ public class keywordData {
 		Pd = new ParaData("Name1",ParaType.String,(Object)S2);
 		Paras.add(Pd);
 		
-		Keys.Keys.add(new KeyData("Growth",Paras,NumParas));
-		Keys.Keys.add(new KeyData("GlView",Paras,NumParas));
-		Keys.Keys.add(new KeyData("Main",Paras,NumParas));
-		Keys.Keys.add(new KeyData("Mob",Paras,NumParas));
-		Keys.Keys.add(new KeyData("Substrate",Paras,NumParas));
+		this.KeyNames.add("Growth");
+		this.Keys.add(new KeyData("Growth",Paras,NumParas));
+		this.KeyNames.add("GlView");
+		this.Keys.add(new KeyData("GlView",Paras,NumParas));
+		this.KeyNames.add("Main");
+		this.Keys.add(new KeyData("Main",Paras,NumParas));
+		this.KeyNames.add("Mob");
+		this.Keys.add(new KeyData("Mob",Paras,NumParas));
+		this.KeyNames.add("Substrate");
+		this.Keys.add(new KeyData("Substrate",Paras,NumParas));
 		
-		
-		return Keys;
 	}
 	
 }

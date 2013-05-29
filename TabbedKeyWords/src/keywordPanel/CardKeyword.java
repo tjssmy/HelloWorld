@@ -3,25 +3,71 @@ package keywordPanel;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 import java.util.ArrayList;
 
 public class CardKeyword implements ItemListener {
 	JPanel cards; //a panel that uses CardLayout
 
-	private static JPanel paraEntry(String Name) {
+	private static JPanel paraEntry(String Name,
+			final Object data, keywordData.ParaType Type) {
 		JPanel Entry = new JPanel();
 		Entry.setPreferredSize (new Dimension(350, 50));
 		Entry.setLayout(new GridLayout(1,2));
 		JButton JB = new JButton(Name);
 		JB.setText(Name);
 		Entry.add(JB);
-		Entry.add(new JTextField(10));
+		
+		switch(Type) {
+		
+		case Double: {
+			final Double D;
+			final JTextField F = new JTextField(10);
+			Entry.add(F);
+			
+			F.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					D = Double.parseDouble(F.getText())	;		
+				}
+				
+			});
+			
+			break;
+		}
+		case EnumType: {
+			break;
+		}
+		case File: {
+			break;
+		}
+		case Integer: {
+			Entry.add(JB);
+			Entry.add(new JTextField(10));
+
+			break;
+		}
+		case ListOfDoubles: {
+			break;
+		}
+		case String: {
+			Entry.add(JB);
+			Entry.add(new JTextField(10));
+
+			break;
+		}
+		default:
+			break;
+		}
+
 		return Entry;
 	}
 
 	
-	public JPanel CardList (int n, String names[]) {
+	public JPanel CardList (int n, 
+			ArrayList<keywordData.ParaData> paras ) {
 		int j;
 		//Create the "cards".
 		JPanel card = new JPanel();
@@ -30,7 +76,8 @@ public class CardKeyword implements ItemListener {
 		
 		for (j = 0; j < n; j++) {
 //			card.add(new JButton();
-			JPanel entry = paraEntry(names[j]);
+			keywordData.ParaData P = paras.get(j);
+			JPanel entry = paraEntry(P.Name,P.Data,P.Type);
 			card.add(entry);
 		}
 		return card;
@@ -38,12 +85,12 @@ public class CardKeyword implements ItemListener {
 
 
 	public void addKeyWordPanel(Container pane, 
-			int nKeys, String Keys[], ArrayList<KeyData> KeyParas) {
+			keywordData kData) {
 		//Put the JComboBox in a JPanel to get a nicer look.
 		JPanel comboBoxPane = new JPanel(); //use FlowLayout
 		int j;
 		
-		JComboBox cb = new JComboBox(Keys);
+		JComboBox cb = new JComboBox((kData.KeyNames.toArray()));
 		cb.setEditable(false);
 		cb.addItemListener(this);
 		cb.setPreferredSize(new Dimension(200,20));
@@ -52,14 +99,13 @@ public class CardKeyword implements ItemListener {
 		//Create the panel that contains the "cards".
 		cards = new JPanel(new CardLayout());
 		
-		for (j = 0; j < nKeys; j++) {
-			KeyData K = KeyParas.get(j);
-			int nParas = K.num;
-			String name = K.Name;
-			String names[] = K.Paras;
+		for (j = 0; j < kData.numKeys; j++) {
+			keywordData.KeyData K = kData.Keys.get(j);
+			ArrayList<keywordData.ParaData> P = K.Paras;
+			int nParas = K.numParas;
 			
-			JPanel card = CardList(nParas,names);
-			cards.add(card,name);
+			JPanel card = CardList(nParas,P);
+			cards.add(card,K.Name);
 		}
 			
 		pane.add(comboBoxPane, BorderLayout.PAGE_START);
@@ -92,7 +138,6 @@ public class CardKeyword implements ItemListener {
 	 * event dispatch thread.
 	 */
 	private static void createKeyWordPanel() {
-		int j;
 		//Create and set up the window.
 		JFrame frame = new JFrame("CardLayoutDemo");
 		
@@ -100,24 +145,12 @@ public class CardKeyword implements ItemListener {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		keywordData kData = new keywordData("file");
+		kData.testKeyFile();
 		
 		//Create and set up the content pane.
 		CardKeyword demo = new CardKeyword();
-		int numKeys=5;
-		String Keys[] = {"key 1","key 2","key 3","key 4","key 5"};
-		String Paras[][] = {{"para1","para2d","para3","pac3ra4","para5"},
-				{"para5","para2","pardda3","para4","padra5"},
-				{"para5","parad2","para3","parac4","para5"},
-				{"para1","para2","para3","para4","pdarad5"},
-				{"para3","pardda2","para3","para4","padra5"}};
-		ArrayList<KeyData>  KeyParas = new ArrayList<KeyData>();
-		
-		for (j=0; j< numKeys; j++)
-		{
-			KeyParas.add(new KeyData(Keys[j],Paras[j],5));
-		}
 
-		demo.addKeyWordPanel(frame.getContentPane(),numKeys,Keys,KeyParas);
+		demo.addKeyWordPanel(frame.getContentPane(),kData);
 
 		//Display the window.
 		frame.pack();
