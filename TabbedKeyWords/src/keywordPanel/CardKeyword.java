@@ -1,34 +1,49 @@
 package keywordPanel;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 
 import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import java.util.ArrayList;
+//import java.util.ArrayList;
 
 public class CardKeyword implements ItemListener {
 	JPanel cards; //a panel that uses CardLayout
-
-	static String T;
+	static keywordData kData;
 	
-	private class DoubleListener implements ActionListener
+	private static Double DoubleCheckParse(String S, Double Def)
 	{
-		JTextField F;
-		
-		
-		
-		public void actionPerformed(ActionEvent arg0) {
-			Double DD = Double.parseDouble(F.getText())	;	
-			System.out.println(DD);
-			T = F.getText();
-			
+		try {
+		    return Double.parseDouble(S);
+		} catch (NumberFormatException e) {
+			String M = "Bad input:  " + S;
+		    JOptionPane.showMessageDialog(null,M);
+		    return Def;
 		}
-
 	}
 	
-	private static JPanel paraEntry(String Name,
-			final Object data, keywordData.ParaType Type) {
+	private static Integer IntegerCheckParse(String S, Integer Def)
+	{
+		try {
+		    return Integer.parseInt(S);
+		} catch (NumberFormatException e) {
+			String M = "Bad input:  " + S;
+		    JOptionPane.showMessageDialog(null,M);
+		    return Def;
+		}
+	}
+	
+	private JPanel paraEntry(final int k, final int p) {
+		
+		keywordPanel.keywordData.KeyData K = kData.Keys.get(k); 
+		keywordPanel.keywordData.ParaData P = K.Paras.get(p);
+		keywordPanel.keywordData.ParaType Type = P.Type;
+		Object data = P.Data;
+		String Name = P.Name;
+		
 		JPanel Entry = new JPanel();
 		Entry.setPreferredSize (new Dimension(350, 50));
 		Entry.setLayout(new GridLayout(1,2));
@@ -40,7 +55,7 @@ public class CardKeyword implements ItemListener {
 
 		case Double: {
 			
-			Double D = (Double)data;
+			final Double D = (Double)data;
 			final JTextField F = new JTextField(10);
 			
 			Entry.add(F);
@@ -50,13 +65,13 @@ public class CardKeyword implements ItemListener {
 			{
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					Double DD = Double.parseDouble(F.getText())	;	
-					System.out.println(DD);
-					T = F.getText();
+					Double DD = DoubleCheckParse(F.getText(),D)	;
+					kData.SetDoubleData(k,p,DD);
+					F.setText(DD.toString());
 					
-				}
-
-			});
+					Double Dt = (Double)(kData.Keys.get(k)).Paras.get(p).Data;
+					System.out.printf("double: %f %f\n",DD,Dt);
+			}});
 
 			break;
 		}
@@ -67,17 +82,48 @@ public class CardKeyword implements ItemListener {
 			break;
 		}
 		case Integer: {
-			Entry.add(JB);
-			Entry.add(new JTextField(10));
-
+			
+			final Integer I = (Integer)data;
+			final JTextField F = new JTextField(10);
+			
+			Entry.add(F);
+			F.setText(I.toString());
+			
+			F.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					Integer II = IntegerCheckParse(F.getText(),I)	;
+					kData.SetIntegerData(k,p,II);
+					F.setText(II.toString());
+					
+					Integer It = (Integer)(kData.Keys.get(k)).Paras.get(p).Data;
+					System.out.printf("int: %d %d\n",II,It);
+			}});
 			break;
 		}
 		case ListOfDoubles: {
 			break;
 		}
 		case String: {
-			Entry.add(JB);
-			Entry.add(new JTextField(10));
+		
+			final String S = (String)data;
+			final JTextField F = new JTextField(10);
+			
+			Entry.add(F);
+			F.setText(S);
+			
+			F.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					String SS = F.getText();
+					kData.SetStringData(k,p,SS);
+										
+					String St = (String)(kData.Keys.get(k)).Paras.get(p).Data;
+					System.out.printf("string: %s %s\n",SS,St);
+			}});
+
 
 			break;
 		}
@@ -89,29 +135,27 @@ public class CardKeyword implements ItemListener {
 	}
 
 
-	public JPanel CardList (int n, 
-			ArrayList<keywordData.ParaData> paras ) {
+	public JPanel CardList (int k) {
 		int j;
 		//Create the "cards".
 		JPanel card = new JPanel();
 		//    	card.setPreferredSize (new Dimension(350, 800));
+		int n = kData.numKeys;
 		card.setLayout(new GridLayout(n,1));
-
+//		
+		
 		for (j = 0; j < n; j++) {
-			//			card.add(new JButton();
-			keywordData.ParaData P = paras.get(j);
-			JPanel entry = paraEntry(P.Name,P.Data,P.Type);
+			JPanel entry = paraEntry(k,j);
 			card.add(entry);
 		}
 		return card;
 	}
 
 
-	public void addKeyWordPanel(Container pane, 
-			keywordData kData) {
+	public void addKeyWordPanel(Container pane) {
 		//Put the JComboBox in a JPanel to get a nicer look.
 		JPanel comboBoxPane = new JPanel(); //use FlowLayout
-		int j;
+		int k;
 
 		JComboBox cb = new JComboBox((kData.KeyNames.toArray()));
 		cb.setEditable(false);
@@ -122,12 +166,9 @@ public class CardKeyword implements ItemListener {
 		//Create the panel that contains the "cards".
 		cards = new JPanel(new CardLayout());
 
-		for (j = 0; j < kData.numKeys; j++) {
-			keywordData.KeyData K = kData.Keys.get(j);
-			ArrayList<keywordData.ParaData> P = K.Paras;
-			int nParas = K.numParas;
-
-			JPanel card = CardList(nParas,P);
+		for (k = 0; k < kData.numKeys; k++) {
+			JPanel card = CardList(k);
+			keywordPanel.keywordData.KeyData K = kData.Keys.get(k); 
 			cards.add(card,K.Name);
 		}
 
@@ -135,6 +176,36 @@ public class CardKeyword implements ItemListener {
 		pane.add(cards, BorderLayout.CENTER);
 	}
 
+	public void addBottomButtonsl(Container pane) {
+		//Put the JComboBox in a JPanel to get a nicer look.
+		JPanel Buttons = new JPanel(); 
+		Buttons.setLayout(new GridLayout(1,2));
+		
+		JButton WriteBut = new JButton("Write File");
+		JButton ExitBut = new JButton("Exit");
+		
+		ExitBut.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				System.exit(0);
+		}});
+
+		WriteBut.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				kData.writeKeyFile(kData.OutFile);
+		}});
+
+		
+		Buttons.add(WriteBut);
+		Buttons.add(ExitBut);
+		
+		pane.add(Buttons, BorderLayout.PAGE_END);
+	}
+
+	
 	public void itemStateChanged(ItemEvent evt) {
 		CardLayout cl = (CardLayout)(cards.getLayout());
 		cl.show(cards, (String)evt.getItem());
@@ -162,14 +233,15 @@ public class CardKeyword implements ItemListener {
 		//		frame.setPreferredSize(new Dimension(350,800));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		keywordData kData = new keywordData("file");
+		kData = new keywordData("Outfile.run","RunConfig.conf");
 		kData.testKeyFile();
 
 		//Create and set up the content pane.
 		CardKeyword demo = new CardKeyword();
 
-		demo.addKeyWordPanel(frame.getContentPane(),kData);
-
+		demo.addKeyWordPanel(frame.getContentPane());
+		demo.addBottomButtonsl(frame.getContentPane());
+		
 		//Display the window.
 		frame.pack();
 		frame.setVisible(true);
