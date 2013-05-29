@@ -10,6 +10,23 @@ import java.util.ArrayList;
 public class CardKeyword implements ItemListener {
 	JPanel cards; //a panel that uses CardLayout
 
+	static String T;
+	
+	private class DoubleListener implements ActionListener
+	{
+		JTextField F;
+		
+		
+		
+		public void actionPerformed(ActionEvent arg0) {
+			Double DD = Double.parseDouble(F.getText())	;	
+			System.out.println(DD);
+			T = F.getText();
+			
+		}
+
+	}
+	
 	private static JPanel paraEntry(String Name,
 			final Object data, keywordData.ParaType Type) {
 		JPanel Entry = new JPanel();
@@ -18,23 +35,29 @@ public class CardKeyword implements ItemListener {
 		JButton JB = new JButton(Name);
 		JB.setText(Name);
 		Entry.add(JB);
-		
+
 		switch(Type) {
-		
+
 		case Double: {
-			final Double D;
+			
+			Double D = (Double)data;
 			final JTextField F = new JTextField(10);
+			
 			Entry.add(F);
+			F.setText(D.toString());
 			
 			F.addActionListener(new ActionListener()
 			{
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					D = Double.parseDouble(F.getText())	;		
+					Double DD = Double.parseDouble(F.getText())	;	
+					System.out.println(DD);
+					T = F.getText();
+					
 				}
-				
+
 			});
-			
+
 			break;
 		}
 		case EnumType: {
@@ -65,7 +88,7 @@ public class CardKeyword implements ItemListener {
 		return Entry;
 	}
 
-	
+
 	public JPanel CardList (int n, 
 			ArrayList<keywordData.ParaData> paras ) {
 		int j;
@@ -73,9 +96,9 @@ public class CardKeyword implements ItemListener {
 		JPanel card = new JPanel();
 		//    	card.setPreferredSize (new Dimension(350, 800));
 		card.setLayout(new GridLayout(n,1));
-		
+
 		for (j = 0; j < n; j++) {
-//			card.add(new JButton();
+			//			card.add(new JButton();
 			keywordData.ParaData P = paras.get(j);
 			JPanel entry = paraEntry(P.Name,P.Data,P.Type);
 			card.add(entry);
@@ -89,7 +112,7 @@ public class CardKeyword implements ItemListener {
 		//Put the JComboBox in a JPanel to get a nicer look.
 		JPanel comboBoxPane = new JPanel(); //use FlowLayout
 		int j;
-		
+
 		JComboBox cb = new JComboBox((kData.KeyNames.toArray()));
 		cb.setEditable(false);
 		cb.addItemListener(this);
@@ -98,16 +121,16 @@ public class CardKeyword implements ItemListener {
 
 		//Create the panel that contains the "cards".
 		cards = new JPanel(new CardLayout());
-		
+
 		for (j = 0; j < kData.numKeys; j++) {
 			keywordData.KeyData K = kData.Keys.get(j);
 			ArrayList<keywordData.ParaData> P = K.Paras;
 			int nParas = K.numParas;
-			
+
 			JPanel card = CardList(nParas,P);
 			cards.add(card,K.Name);
 		}
-			
+
 		pane.add(comboBoxPane, BorderLayout.PAGE_START);
 		pane.add(cards, BorderLayout.CENTER);
 	}
@@ -132,21 +155,16 @@ public class CardKeyword implements ItemListener {
 	}
 
 
-	/**
-	 * Create the GUI and show it.  For thread safety,vg
-	 * this method should be invoked from the
-	 * event dispatch thread.
-	 */
 	private static void createKeyWordPanel() {
 		//Create and set up the window.
 		JFrame frame = new JFrame("CardLayoutDemo");
-		
-//		frame.setPreferredSize(new Dimension(350,800));
+
+		//		frame.setPreferredSize(new Dimension(350,800));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		keywordData kData = new keywordData("file");
 		kData.testKeyFile();
-		
+
 		//Create and set up the content pane.
 		CardKeyword demo = new CardKeyword();
 
@@ -158,6 +176,13 @@ public class CardKeyword implements ItemListener {
 	}
 
 	public static void main(String[] args) {
+
+		/**
+		 * Create the GUI and show it.  For thread safety,vg
+		 * this method should be invoked from the
+		 * event dispatch thread.
+		 */
+		
 		/* Use an appropriate Look and Feel */
 		try {
 			//UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
