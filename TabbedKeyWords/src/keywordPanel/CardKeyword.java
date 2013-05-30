@@ -14,25 +14,60 @@ public class CardKeyword implements ItemListener {
 	JPanel cards; //a panel that uses CardLayout
 	static keywordData kData;
 	
-	private static Double DoubleCheckParse(String S, Double Def)
-	{
-		try {
-		    return Double.parseDouble(S);
-		} catch (NumberFormatException e) {
-			String M = "Bad input:  " + S;
-		    JOptionPane.showMessageDialog(null,M);
-		    return Def;
+	public static class ParseData {
+		ParseStatus Status;
+		Object Data;
+		
+		public ParseData()
+		{
+			Status = ParseStatus.ParseUnknown;
+			Data = null;
 		}
 	}
 	
-	private static Integer IntegerCheckParse(String S, Integer Def)
+	private enum ParseStatus {
+		ParseOk,ParseFail,ParseUnknown
+	}
+	private static ParseData DoubleCheckParse(String S, Double Def)
 	{
+		Double D;
+		ParseData ParseRet = new ParseData();
 		try {
-		    return Integer.parseInt(S);
+		    D = Double.parseDouble(S);
+		    ParseRet.Data = (Object) D;
+		    ParseRet.Status = ParseStatus.ParseOk;
+		    
+		    return ParseRet;
 		} catch (NumberFormatException e) {
-			String M = "Bad input:  " + S;
+			String M = "Bad double input:  " + S;
 		    JOptionPane.showMessageDialog(null,M);
-		    return Def;
+		    
+		    ParseRet.Data = (Object) Def;
+		    ParseRet.Status = ParseStatus.ParseFail;
+		    
+		    return ParseRet;
+		}
+	}
+	
+	private static ParseData IntegerCheckParse(String S, Integer Def)
+	{
+		Integer I;
+		ParseData ParseRet = new ParseData();
+		try {
+		    I = Integer.parseInt(S);
+		    ParseRet.Data = (Object) I;
+		    ParseRet.Status = ParseStatus.ParseOk;
+		    
+		    return ParseRet;
+		} catch (NumberFormatException e) {
+			String M = "Bad integer input:  " + S;
+		    JOptionPane.showMessageDialog(null,M);
+		    I = Def;
+		    
+		    ParseRet.Data = (Object) Def;
+		    ParseRet.Status = ParseStatus.ParseFail;
+		    
+		    return ParseRet;
 		}
 	}
 	
@@ -63,12 +98,14 @@ public class CardKeyword implements ItemListener {
 			
 			F.addActionListener(new ActionListener()
 			{
-				@Override
+				@Override				
 				public void actionPerformed(ActionEvent arg0) {
-					Double DD = DoubleCheckParse(F.getText(),D)	;
+					Double DD;
+					ParseData P =  DoubleCheckParse(F.getText(),D);
+					DD = (Double) P.Data;
 					kData.SetDoubleData(k,p,DD);
 					F.setText(DD.toString());
-					
+					if (P.Status == ParseStatus.ParseOk) F.setForeground(Color.red);
 					Double Dt = (Double)(kData.Keys.get(k)).Paras.get(p).Data;
 					System.out.printf("double: %f %f\n",DD,Dt);
 			}});
@@ -93,10 +130,12 @@ public class CardKeyword implements ItemListener {
 			{
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					Integer II = IntegerCheckParse(F.getText(),I)	;
+					Integer II = I;
+					ParseData P = IntegerCheckParse(F.getText(),I)	;
+					II = (Integer) P.Data;
 					kData.SetIntegerData(k,p,II);
 					F.setText(II.toString());
-					
+					if (P.Status == ParseStatus.ParseOk) F.setForeground(Color.red);
 					Integer It = (Integer)(kData.Keys.get(k)).Paras.get(p).Data;
 					System.out.printf("int: %d %d\n",II,It);
 			}});
@@ -119,7 +158,7 @@ public class CardKeyword implements ItemListener {
 				public void actionPerformed(ActionEvent arg0) {
 					String SS = F.getText();
 					kData.SetStringData(k,p,SS);
-										
+					F.setForeground(Color.red);
 					String St = (String)(kData.Keys.get(k)).Paras.get(p).Data;
 					System.out.printf("string: %s %s\n",SS,St);
 			}});

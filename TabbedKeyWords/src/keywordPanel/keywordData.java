@@ -150,11 +150,11 @@ public class keywordData {
 
 		Double D22 = 150.0;
 		Pd2 = new ParaData("Name2",ParaType.Double,(Object)D22);
-		Paras2.add(Pd);
+		Paras2.add(Pd2);
 
 		Integer I12 = 15;
 		Pd2 = new ParaData("Name3",ParaType.Integer,(Object)I12);
-		Paras2.add(Pd);
+		Paras2.add(Pd2);
 
 		Integer I22 = 115;
 		Pd2 = new ParaData("Name4",ParaType.Integer,(Object)I22);
