@@ -13,6 +13,7 @@ import javax.swing.*;
 public class CardKeyword implements ItemListener {
 	JPanel cards; //a panel that uses CardLayout
 	static keywordData kData;
+	static String ConfFile;
 	
 	public static class ParseData {
 		ParseStatus Status;
@@ -218,8 +219,9 @@ public class CardKeyword implements ItemListener {
 	public void addBottomButtonsl(Container pane) {
 		//Put the JComboBox in a JPanel to get a nicer look.
 		JPanel Buttons = new JPanel(); 
-		Buttons.setLayout(new GridLayout(1,2));
+		Buttons.setLayout(new GridLayout(1,3));
 		
+		JButton ReadBut = new JButton("Read File");
 		JButton WriteBut = new JButton("Write File");
 		JButton ExitBut = new JButton("Exit");
 		
@@ -237,7 +239,15 @@ public class CardKeyword implements ItemListener {
 				kData.writeKeyFile(kData.OutFile);
 		}});
 
-		
+		ReadBut.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				kData.readConfigKeyFile();
+			
+		}});
+
+		Buttons.add(ReadBut);
 		Buttons.add(WriteBut);
 		Buttons.add(ExitBut);
 		
@@ -272,8 +282,10 @@ public class CardKeyword implements ItemListener {
 		//		frame.setPreferredSize(new Dimension(350,800));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		kData = new keywordData("Outfile.run","RunConfig.conf");
-		kData.testKeyFile();
+		kData = new keywordData("Outfile.run",ConfFile);
+		
+		kData.readConfigKeyFile();
+//		kData.testKeyFile();
 
 		//Create and set up the content pane.
 		CardKeyword demo = new CardKeyword();
@@ -287,7 +299,7 @@ public class CardKeyword implements ItemListener {
 	}
 
 	public static void main(String[] args) {
-
+		
 		/**
 		 * Create the GUI and show it.  For thread safety,vg
 		 * this method should be invoked from the
@@ -310,6 +322,17 @@ public class CardKeyword implements ItemListener {
 		/* Turn off metal's use of bold fonts */
 		UIManager.put("swing.boldMetal", Boolean.FALSE);
 
+		
+		if (args.length == 2 && args[0].equals("-c"))
+		{
+			ConfFile = args[1];
+		}
+		else 
+		{
+			System.out.println("Command Line args bad\n");
+			System.exit(0);
+		}
+				
 		//Schedule a job for the event dispatch thread:
 		//creating and showing this application's GUI.
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {

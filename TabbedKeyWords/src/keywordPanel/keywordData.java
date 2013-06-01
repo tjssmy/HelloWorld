@@ -1,14 +1,19 @@
 package keywordPanel;
 
 import java.util.ArrayList;
+
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.swing.JOptionPane;
+
 public class keywordData {
 
-	String OutFile;
+	String OutFile, InFile;
 	String ConfigFile;
 
 	int numKeys;
@@ -67,11 +72,130 @@ public class keywordData {
 	}
 
 
-	public static void readKeyFile(){
-		//		keywordData Keys = new keywordData(FileName);
-		//		return Keys;
+	public void readConfigKeyFile() {
+		int l,k,p,n;
+		String toks[],KeyName,ParaName,ParaTy;
+		ParaType PType = null;
+		BufferedReader br = null;
+		KeyData Key;
+		Object data = null;
+		
+		int NumParas;
+		try {
+ 
+			String sCurrentLine;
+ 
+			br = new BufferedReader(new FileReader(ConfigFile));
+			
+			l = 0;
+			
+			l++;
+			sCurrentLine = br.readLine();
+			toks = sCurrentLine.split(" ");
+			
+			try {
+				this.numKeys = Integer.parseInt(toks[1]);
+			} catch (NumberFormatException e) {
+				String M = "Bad Keyword Number";
+				JOptionPane.showMessageDialog(null,M);
+				System.exit(1);
+			}
+			
+			for (k = 1; k <= this.numKeys; k++)
+			{
+				sCurrentLine = br.readLine();
+				toks = sCurrentLine.split(" ");
+				if (toks.length == 4)
+				{
+					n = Integer.parseInt(toks[0]);
+					if (n != k) break;
+					
+					NumParas = Integer.parseInt(toks[3]);
+					KeyName = new String(toks[1]);
+					
+					ArrayList<ParaData> Paras = new ArrayList<ParaData>();
+					
+					for (p = 1; p <= NumParas; p++)
+					{
+						sCurrentLine = br.readLine();
+						toks = sCurrentLine.split(" ");
+						n = Integer.parseInt(toks[0]);
+						if (n != p) break;
+						
+						ParaName = new String(toks[1]);
+						ParaTy = toks[2]; 
+						
+						if (ParaTy.equals("double")) 
+						{
+							data = (Object) Double.parseDouble(toks[3]);
+							PType = ParaType.Double;
+						}
+						else if (ParaTy.equals("int")) 
+						{
+							data = (Object) Integer.parseInt(toks[3]);
+							PType = ParaType.Integer;
+						}
+						else if (ParaTy.equals("char*")) 
+						{
+							data = (Object) new String(" ");
+							PType = ParaType.String;
+						}
+
+						if (PType != null)
+						{
+							ParaData Pd = new ParaData(ParaName,PType,(Object)data);
+							Paras.add(Pd);
+						}
+					}
+					
+					this.KeyNames.add(KeyName);
+					
+					Key = new KeyData(KeyName,Paras,NumParas);
+					this.Keys.add(Key);
+				}
+				else 
+				{
+					String M = "Bad para line";
+					JOptionPane.showMessageDialog(null,M);
+					System.exit(1);
+				}
+			}
+			
+			while ((sCurrentLine = br.readLine()) != null) {
+				l++;
+				
+			
+				
+				toks = sCurrentLine.split(" ");
+				
+				if (l == 1)
+				{
+					
+				}
+				else
+				{
+					
+				}
+
+			}
+ 
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (br != null)br.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+		
+		
 	}
 
+	public void readKeyFile(String InFile){
+	
+	}
+	
 	public void writeKeyFile(String OutFile){
 		int k,p;
 		String Ps = new String();
