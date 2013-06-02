@@ -6,9 +6,12 @@ import java.awt.event.ActionListener;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 
 import javax.swing.*;
 //import java.util.ArrayList;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 
 public class CardKeyword implements ItemListener {
 	JPanel cards; //a panel that uses CardLayout
@@ -74,18 +77,26 @@ public class CardKeyword implements ItemListener {
 	
 	private JPanel paraEntry(final int k, final int p) {
 		
+		Border paddingBorder = BorderFactory.createEmptyBorder(10,10,10,10);
+		
+		if (k == 7 && p == 13)
+		{
+			System.out.println("here");
+		}
 		keywordPanel.keywordData.KeyData K = kData.Keys.get(k); 
 		keywordPanel.keywordData.ParaData P = K.Paras.get(p);
 		keywordPanel.keywordData.ParaType Type = P.Type;
 		Object data = P.Data;
 		String Name = P.Name;
+		ArrayList<String> List = P.ParaTypeList;
 		
 		JPanel Entry = new JPanel();
 		Entry.setPreferredSize (new Dimension(350, 50));
 		Entry.setLayout(new GridLayout(1,2));
-		JButton JB = new JButton(Name);
-		JB.setText(Name);
-		Entry.add(JB);
+		JLabel JL = new JLabel(Name);
+		JL.setText(Name);
+		JL.setBorder(new EmptyBorder(5, 15, 5, 15));
+		Entry.add(JL);
 
 		switch(Type) {
 
@@ -114,6 +125,23 @@ public class CardKeyword implements ItemListener {
 			break;
 		}
 		case EnumType: {
+			
+			JComboBox ListBox = new JComboBox(List.toArray());
+			Entry.add(ListBox);
+			int def = P.ParaTypeList.indexOf((String)P.Data);
+			
+			ListBox.setSelectedIndex(def);
+			
+			ListBox.addActionListener(new ActionListener()
+			{
+				@Override				
+				public void actionPerformed(ActionEvent arg0) {
+					JComboBox Box = (JComboBox)arg0.getSource();
+					int i = Box.getSelectedIndex();
+					kData.SetEnumTypeData(k,p,i);
+					Box.setForeground(Color.red);
+			}});
+			
 			break;
 		}
 		case File: {
@@ -176,40 +204,88 @@ public class CardKeyword implements ItemListener {
 
 
 	public JPanel CardList (int k) {
-		int j;
+		int j,t;
 		//Create the "cards".
 		JPanel card = new JPanel();
-		//    	card.setPreferredSize (new Dimension(350, 800));
-		int n = kData.numKeys;
-		card.setLayout(new GridLayout(n,1));
-//		
+		card.setPreferredSize (new Dimension(350, 800));
 		
-		for (j = 0; j < n; j++) {
-			JPanel entry = paraEntry(k,j);
-			card.add(entry);
+		JTabbedPane JT = new JTabbedPane();
+		
+		
+		
+		keywordPanel.keywordData.KeyData K = kData.Keys.get(k);
+		int n = K.numParas;
+		
+		
+//		
+		int NumTabs = n/15+1;
+		
+		for (t = 0; t < NumTabs; t++)
+		{
+			int start,end;
+			JPanel T1 = new JPanel();
+			T1.setLayout(new GridLayout(n,1));
+			
+			start = t*15;
+			end = start+15;
+			
+			if (end > n) end = n;
+			
+			for (j = start; j < end; j++) {
+				JPanel entry = paraEntry(k,j);
+				T1.add(entry);
+			}
+
+			JT.addTab(String.format("Tab %d",t+1),null,T1,"Does nothing");
 		}
+		
+		card.add(JT);
 		return card;
 	}
 
-
+	
 	public void addKeyWordPanel(Container pane) {
 		//Put the JComboBox in a JPanel to get a nicer look.
 		JPanel comboBoxPane = new JPanel(); //use FlowLayout
 		int k;
 
-		JComboBox cb = new JComboBox((kData.KeyNames.toArray()));
-		cb.setEditable(false);
-		cb.addItemListener(this);
-		cb.setPreferredSize(new Dimension(200,20));
-		comboBoxPane.add(cb);
+		
+		final JComboBox cbA = new JComboBox((kData.ActiveKeyNames.toArray()));
+//		JComboBox cb = new JComboBox((kData.Keys.toArray()));
+//		cb.setEditable(false);
+//		cb.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				JComboBox CB = (JComboBox) e.getSource();
+//				keywordData.KeyData K = (keywordData.KeyData) CB.getSelectedItem();
+//				kData.ActiveKeys.add(keywordData.KeyCopy(K));
+//				kData.ActiveKeyNames.add(new String(K.Name));
+//				cbA.addItem(new String(K.Name));
+//				
+//				int k = kData.ActiveKeys.size()-1;
+//				JPanel card = CardList(k);
+//				cards.add(card,kData.ActiveKeys.get(k).Name);
+////				String S = new String((String)(is.getSelectedObjects()[0]));
+//		        System.out.println("Selected: " + K.Name);	
+//			}
+//		});
+//		
+		
+		cbA.setEditable(false);
+		cbA.addItemListener(this);
+		cbA.setPreferredSize(new Dimension(150,20));
+		
+//		cb.setPreferredSize(new Dimension(150,20));
+		
+//		comboBoxPane.add(cb);
+		comboBoxPane.add(cbA);
 
 		//Create the panel that contains the "cards".
 		cards = new JPanel(new CardLayout());
 
-		for (k = 0; k < kData.numKeys; k++) {
+		for (k = 0; k < kData.ActiveKeys.size(); k++) {
 			JPanel card = CardList(k);
-			keywordPanel.keywordData.KeyData K = kData.Keys.get(k); 
-			cards.add(card,K.Name);
+			cards.add(card,kData.ActiveKeys.get(k).Name);
 		}
 
 		pane.add(comboBoxPane, BorderLayout.PAGE_START);
@@ -275,7 +351,7 @@ public class CardKeyword implements ItemListener {
 	}
 
 
-	private static void createKeyWordPanel() {
+ 	private static void createKeyWordPanel() {
 		//Create and set up the window.
 		JFrame frame = new JFrame("CardLayoutDemo");
 

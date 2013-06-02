@@ -1,5 +1,1 @@
-Growth   Name1 = 50.000000  Name2 = 150.000000  Name3 = 15  Name4 = 115  Name1 = 'A string'  Name1 = 'A second string' 
-GlView   Name1 = 50.000000  Name2 = 150.000000  Name3 = 15  Name4 = 115  Name1 = 'A string'  Name1 = 'A second string' 
-Main   Name1 = 50.000000  Name2 = 150.000000  Name3 = 15  Name4 = 115  Name1 = 'A string'  Name1 = 'A second string' 
-Mob   Name1 = 50.000000  Name2 = 150.000000  Name3 = 15  Name4 = 115  Name1 = 'A string'  Name1 = 'A second string' 
-Substrate   Name1 = 50.000000  Name2 = 150.000000  Name3 = 15  Name4 = 115  Name1 = 'A string'  Name1 = 'A second string' 
+Block   Name = 'this a nam' 

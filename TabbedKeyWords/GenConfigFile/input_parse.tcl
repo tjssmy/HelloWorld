@@ -55,7 +55,7 @@ set elements \
 ##
 ##   Geometery elements
 ##Vol
-     {{{Block RectSolid} LL {{N/A} {N/A}}}\
+     {{{Block RectSolid} LL {{N/A} {N/A}} GuiRequired }\
 	  {\
 	       { P EL_Type GeoRegion_type GEO_RECT_XYZ "Block" "Rectangular block" "none" OPTIONAL None 1000 {N/A} No} \
 	       { P Mode {GeoAndNodes ExtraNodes Vol VolOutput} GeoAndNodes "Name" "" "" OPTIONAL Both 1000 positive No} \
@@ -108,7 +108,7 @@ set elements \
 	       { P NZ int 10 "NZ" "Number of Z segments" "N/A" OPTIONAL Both 1000 positive No}\
 	   } \
 	  GEO_REGION}\
-     {{{Quad} LL {{N/A} {N/A}}}\
+     {{{Quad} LL {{N/A} {N/A}} GuiOptional }\
 	  {\
 	       { P EL_Type GeoRegion_type GEO_QUAD "Block" "Rectangular block" "none" OPTIONAL None 1000 {N/A} No} \
 	       { P Mode {GeoAndNodes ExtraNodes Vol VolOutput} GeoAndNodes "Name" "" "" OPTIONAL Both 1000 positive No} \
@@ -196,7 +196,7 @@ set elements \
 	   	   { P SurfaceMeshFactor double 1 "X0 position" "Min Z value" "units" OPTIONAL Both 1000 positive No} \
 	   } \
         GEO_REGION}\
-        {{{Triangle} LL {{N/A} {N/A}}}\
+        {{{Triangle} LL {{N/A} {N/A}} GuiOptional }\
         {\
         { P EL_Type GeoRegion_type GEO_TRIANGLE "Block" "Rectangular block" "none" OPTIONAL None 1000 {N/A} No} \
         { P Mode {GeoAndNodes ExtraNodes VolGen VolOutput} GeoAndNodes "Name" "" "" OPTIONAL Both 1000 positive No} \
@@ -282,7 +282,7 @@ set elements \
         { P TopPadNodes   {None Interior Exterior Both} None  "BC type" "" "" OPTIONAL Both 1000 positive No} \
         } \
 	  GEO_REGION}\
-        {{{Line} LL {{N/A} {N/A}}}\
+        {{{Line} LL {{N/A} {N/A}} GuiOptional }\
             {\
             { P EL_Type GeoRegion_type GEO_LINE "Block" "Rectangular block" "none" OPTIONAL None 1000 {N/A} No} \
             { P Mode {GeoAndNodes ExtraNodes Vol VolOutput} GeoAndNodes "Name" "" "" OPTIONAL Both 1000 positive No} \
@@ -369,7 +369,7 @@ set elements \
             { P TopPadNodes   {None Interior Exterior Both} None  "BC type" "" "" OPTIONAL Both 1000 positive No} \
             } \
 GEO_REGION}\
-{{{Disc Ring Ellipse} LL {{N/A} {N/A}}}\
+{{{Disc Ring Ellipse} LL {{N/A} {N/A}} GuiOptional }\
 	  {\
 	       { P EL_Type GeoRegion_type GEO_DISC "Block" "Rectangular block" "none" OPTIONAL None 1000 {N/A} No} \
 	       { P Mode {GeoAndNodes ExtraNodes Vol VolOutput} GeoAndNodes "Name" "" "" OPTIONAL Both 1000 positive No} \
@@ -466,7 +466,7 @@ GEO_REGION}\
 	       { P RandDev double 0.0 "RandDev" "Random Deviation for RANDOMXYZ" "N/A" OPTIONAL Both 1000 positive No}\
 	   } \
 	  GEO_REGION}\
-     {{{Sphere Ellipsoid} LL {{N/A} {N/A}}}\
+     {{{Sphere Ellipsoid} LL {{N/A} {N/A}} GuiOptional }\
 	  {\
 	       { P EL_Type GeoRegion_type GEO_SPHERE "Block" "Rectangular block" "none" OPTIONAL None 1000 {N/A} No} \
 	       { P Mode {GeoAndNodes ExtraNodes Vol VolOutput} GeoAndNodes "Name" "" "" OPTIONAL Both 1000 positive No} \
@@ -527,7 +527,7 @@ GEO_REGION}\
 	       { P c double 1 "y elipse factor" "Z extent" "units" OPTIONAL Both 1000 positive No} \
 	   } \
 	  GEO_REGION}\
-     {{Atar LL {{N/A} {N/A}}}\
+     {{Atar LL {{N/A} {N/A}} GuiOptional }\
 	  {\
 	       { P EL_Type GeoRegion_type GEO_ATAR "Block" "Rectangular block" "none" OPTIONAL None 1000 {N/A} No} \
 	       { P Mode {GeoAndNodes ExtraNodes Vol VolOutput} GeoAndNodes "Name" "" "" OPTIONAL Both 1000 positive No} \
@@ -599,7 +599,7 @@ GEO_REGION}\
 #
 #    Material statements
 #
-     {{{Material} LL {{N/A} {N/A}}}\
+     {{{Material} LL {{N/A} {N/A}} GuiOptional }\
 	  {\
 	       { P Name char* NULL "Name" "" "" OPTIONAL Both 1000 positive No} \
 	       { P Color GSList* double "Color values" "" "" OPTIONAL Both 1000 positive No} \
@@ -619,7 +619,7 @@ GEO_REGION}\
 #
 #    Mesh statement
 #
-     {{{Mesh Model} PST {{N/A} {N/A}}}\
+     {{{Mesh Model} PST {{N/A} {N/A}} GuiRequired }\
 	  {\
 	       # Mode must match EQTYPE in utils.h
 	       { P Mode {NO_EQ HEAT_EQ WAVE_EQ MAXWELL_EQ SCHRO_EQ MODESOLVER_EQ} HEAT_EQ "Name" "" "" OPTIONAL Both 1000 positive No} \
@@ -654,7 +654,7 @@ GEO_REGION}\
 	#
 	#    Merge Regions
 	#
-	{{{MergeRegion} LL {{N/A} {N/A}}}\
+	{{{MergeRegion} LL {{N/A} {N/A}} GuiOptional }\
 	 	 {\
 		{ P Name char* NULL "Name" "" "" OPTIONAL Both 1000 positive No} \	
 		{ P With GSList* char* "Scale values" "" "" OPTIONAL Both 1000 positive No} \
@@ -663,7 +663,7 @@ GEO_REGION}\
 #
 #    Boundary Conditions
 #
-     {{{BC} LL {{N/A} {N/A}}}\
+     {{{BC} LL {{N/A} {N/A}} GuiOptional }\
 	  {\
 	       { P Geo {Top Bot Right Left Back Front All} All "BC geo" "" "" OPTIONAL Both 1000 positive No} \
 	       { P Type {FixedVal FixedFlow Laplacian Interface Boundary Bulk Trans PML PEC PMC FlowPorts PotPorts}\
@@ -677,7 +677,7 @@ GEO_REGION}\
 #
 #    Boundary Conditions
 #
-     {{{IC InitCond} LL {{N/A} {N/A}}}\
+     {{{IC InitCond} LL {{N/A} {N/A}} GuiOptional }\
 	  {\
 	       # Needs to match InitCondType in Utils.c
 	       { P Type {GaussianInitX GaussianInitXY GaussianInitXYZ SinInitX ConstInit ConstXInit SinInitTime CustomDist CustomDistTime Eq} ConstInit "BC type" "" "" OPTIONAL Both 1000 positive No} \
@@ -692,7 +692,7 @@ GEO_REGION}\
 #
 #    Solver
 #
-     {{Solver LL {{N/A} {N/A}}}\
+     {{Solver LL {{N/A} {N/A}} GuiOptional }\
 	  {\
 	       { P Type {Eigen SS Trans FreqDom NoSolve} Eigen "BC type" "" "" OPTIONAL Both 1000 positive No} \
 	       { P Delta_t double 1 "BC values" "" "" OPTIONAL Both 1000 positive No} \
@@ -723,7 +723,7 @@ GEO_REGION}\
 #
 #    Model Viewer
 #
-     {{GlView LL {{N/A} {N/A}}}\
+     {{GlView LL {{N/A} {N/A}} GuiOptional }\
 	  {\
 	       { P Type {NodeMat NodeType DeletedNodes Surface BC Mesh Epi  EpiComp Output CondNum CldNum RegNum} NodeType "BC type" "" "" OPTIONAL Both 1000 positive No} \
 	       { P NodeNormals {NoNormals ElementNormals MaterialNormals BoundaryNormals InterfaceNormals AllNormals} NoNormals "BC values" "" "" OPTIONAL Both 1000 positive No} \
@@ -741,7 +741,7 @@ GEO_REGION}\
 	  GLView}\
 #
 #    ModeSolver views
-     {{ModeSolverView LL {{N/A} {N/A}}}\
+     {{ModeSolverView LL {{N/A} {N/A}} GuiOptional }\
 	  {\
 	       { P Type {Surface Nodes Plane} Surface "BC type" "" "" OPTIONAL Both 1000 positive No} \
 	       { P Field {Mag Hx Hy Epi} Mag "BC type" "" "" OPTIONAL Both 1000 positive No} \
@@ -760,7 +760,7 @@ GEO_REGION}\
 	   } \
 	  ModeSolverView}\
 #    Heat Solver views
-     {{HeatSolverView LL {{N/A} {N/A}}}\
+     {{HeatSolverView LL {{N/A} {N/A}} GuiOptional }\
 	  {\
 	       { P Type {Surface Nodes SurfaceAndNodes MinT MaxT} Surface "BC type" "" "" OPTIONAL Both 1000 positive No} \
 	       { P Quantity {Temp Flow} Temp "BC type" "" "" OPTIONAL Both 1000 positive No} \
@@ -781,7 +781,7 @@ GEO_REGION}\
 	   } \
 	  HeatSolverView}\
 #    Heat Solver output
-     {{Output LL {{N/A} {N/A}}}\
+     {{Output LL {{N/A} {N/A}} GuiOptional }\
 	  {\
 	       { P Type {Temp Hx Hy Var CondNum Epi Pot Psi ThermCond ThermCap VarNum} Temp "BC type" "" "" OPTIONAL Both 1000 positive No} \
 	       { P Plot {Time X Y Z XY XZ YZ} Time "BC type" "" "" OPTIONAL Both 1000 positive No} \
@@ -807,7 +807,7 @@ GEO_REGION}\
 	   } \
 	  Output}\
 #    Schro Solver views
-    {{SchroSolverView LL {{N/A} {N/A}}}\
+    {{SchroSolverView LL {{N/A} {N/A}} GuiOptional }\
         {\
            { P Type {Surface Nodes} Surface "BC type" "" "" OPTIONAL Both 1000 positive No} \
            { P Quantity {Temp Flow} Temp "BC type" "" "" OPTIONAL Both 1000 positive No} \

@@ -22,6 +22,9 @@ foreach {elem} $elements {
 	set para [lindex $elem 1]
 
 	set NameLis [lindex $basic 0]
+	set GuiStatus [lindex $basic 3]
+
+	puts "$basic : $GuiStatus"
 
 	if {[llength $NameLis] > 1} {
 		set Name [lindex $NameLis 0]
@@ -30,7 +33,7 @@ foreach {elem} $elements {
 	}
 	
 	set NumPara [llength $para]	
-	puts $o "$k $Name NumParas: $NumPara"
+	puts $o "$k $Name $GuiStatus NumParas: $NumPara"
 	
 	set pn 0
 	foreach {a}  $para {
