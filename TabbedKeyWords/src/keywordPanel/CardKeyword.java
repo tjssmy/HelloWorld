@@ -83,7 +83,7 @@ public class CardKeyword implements ItemListener {
 		{
 			System.out.println("here");
 		}
-		keywordPanel.keywordData.KeyData K = kData.Keys.get(k); 
+		keywordPanel.keywordData.KeyData K = kData.ActiveKeys.get(k); 
 		keywordPanel.keywordData.ParaData P = K.Paras.get(p);
 		keywordPanel.keywordData.ParaType Type = P.Type;
 		Object data = P.Data;
@@ -118,7 +118,7 @@ public class CardKeyword implements ItemListener {
 					kData.SetDoubleData(k,p,DD);
 					F.setText(DD.toString());
 					if (P.Status == ParseStatus.ParseOk) F.setForeground(Color.red);
-					Double Dt = (Double)(kData.Keys.get(k)).Paras.get(p).Data;
+					Double Dt = (Double)(kData.ActiveKeys.get(k)).Paras.get(p).Data;
 					System.out.printf("double: %f %f\n",DD,Dt);
 			}});
 
@@ -165,7 +165,7 @@ public class CardKeyword implements ItemListener {
 					kData.SetIntegerData(k,p,II);
 					F.setText(II.toString());
 					if (P.Status == ParseStatus.ParseOk) F.setForeground(Color.red);
-					Integer It = (Integer)(kData.Keys.get(k)).Paras.get(p).Data;
+					Integer It = (Integer)(kData.ActiveKeys.get(k)).Paras.get(p).Data;
 					System.out.printf("int: %d %d\n",II,It);
 			}});
 			break;
@@ -188,7 +188,7 @@ public class CardKeyword implements ItemListener {
 					String SS = F.getText();
 					kData.SetStringData(k,p,SS);
 					F.setForeground(Color.red);
-					String St = (String)(kData.Keys.get(k)).Paras.get(p).Data;
+					String St = (String)(kData.ActiveKeys.get(k)).Paras.get(p).Data;
 					System.out.printf("string: %s %s\n",SS,St);
 			}});
 
@@ -213,7 +213,7 @@ public class CardKeyword implements ItemListener {
 		
 		
 		
-		keywordPanel.keywordData.KeyData K = kData.Keys.get(k);
+		keywordPanel.keywordData.KeyData K = kData.ActiveKeys.get(k);
 		int n = K.numParas;
 		
 		
@@ -246,51 +246,106 @@ public class CardKeyword implements ItemListener {
 	
 	public void addKeyWordPanel(Container pane) {
 		//Put the JComboBox in a JPanel to get a nicer look.
+		
+		
 		JPanel comboBoxPane = new JPanel(); //use FlowLayout
+		comboBoxPane.setLayout(new GridLayout(2,2));
+		
+		JLabel L1 = new JLabel("Add a Keyword");
+		JLabel L2 = new JLabel("Active Keywords");
+		L1.setHorizontalAlignment( SwingConstants.CENTER );
+		L2.setHorizontalAlignment( SwingConstants.CENTER );
+		comboBoxPane.add(L1);
+		comboBoxPane.add(L2);
+		
 		int k;
 
+		ArrayList<String> ANames = new ArrayList<String>();
 		
-		final JComboBox cbA = new JComboBox((kData.ActiveKeyNames.toArray()));
-//		JComboBox cb = new JComboBox((kData.Keys.toArray()));
-//		cb.setEditable(false);
-//		cb.addActionListener(new ActionListener() {
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				JComboBox CB = (JComboBox) e.getSource();
-//				keywordData.KeyData K = (keywordData.KeyData) CB.getSelectedItem();
-//				kData.ActiveKeys.add(keywordData.KeyCopy(K));
-//				kData.ActiveKeyNames.add(new String(K.Name));
-//				cbA.addItem(new String(K.Name));
-//				
-//				int k = kData.ActiveKeys.size()-1;
-//				JPanel card = CardList(k);
-//				cards.add(card,kData.ActiveKeys.get(k).Name);
-////				String S = new String((String)(is.getSelectedObjects()[0]));
-//		        System.out.println("Selected: " + K.Name);	
-//			}
-//		});
-//		
+		ANames.addAll(kData.ActiveKeyNames);
 		
-		cbA.setEditable(false);
-		cbA.addItemListener(this);
-		cbA.setPreferredSize(new Dimension(150,20));
+		keywordData.KeyData DummyKey = 
+				new keywordData.KeyData(new String("Remove Keyword"),null,0,null); 
 		
-//		cb.setPreferredSize(new Dimension(150,20));
+		kData.ActiveKeys.add(DummyKey);	
 		
-//		comboBoxPane.add(cb);
-		comboBoxPane.add(cbA);
-
+		final JComboBox cb = new JComboBox(kData.ActiveKeys.toArray());
+		cb.setEditable(false);
+		cb.addItemListener(this);
+		cb.setPreferredSize(new Dimension(150,20));
+		
+		JComboBox cbDef = new JComboBox((kData.Keys.toArray()));
+		cbDef.setEditable(false);
+		cbDef.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JComboBox CB = (JComboBox) e.getSource();
+				keywordData.KeyData K = (keywordData.KeyData) CB.getSelectedItem();
+				keywordData.KeyData KNew = keywordData.KeyCopy(K);
+				int k = kData.ActiveKeys.size()-1; // last index (dummy key)
+				
+				kData.ActiveKeys.add(k,KNew); // insert and push last element to end
+				kData.ActiveKeyNames.add(new String(K.Name));
+				
+				// seems you need unique names to link to cards.
+				Integer I = new Integer(K.numIns);
+				String KName = new String(KNew.Name + "(" + I.toString() + ")");
+				KNew.GUIName = KName;
+				cb.insertItemAt(KNew, cb.getItemCount()-1);
+				
+				JPanel card = CardList(k);
+				cards.add(card,KName);
+		        System.out.println("Selected: " + KName);	
+			}
+		});
+		
+		comboBoxPane.add(cbDef);
+		comboBoxPane.add(cb);		
+		
 		//Create the panel that contains the "cards".
 		cards = new JPanel(new CardLayout());
 
 		for (k = 0; k < kData.ActiveKeys.size(); k++) {
 			JPanel card = CardList(k);
-			cards.add(card,kData.ActiveKeys.get(k).Name);
+			keywordPanel.keywordData.KeyData K = kData.ActiveKeys.get(k); 
+			cards.add(card,K.Name);
 		}
 
 		pane.add(comboBoxPane, BorderLayout.PAGE_START);
 		pane.add(cards, BorderLayout.CENTER);
 	}
+
+	//  card/combo event handler -- finds card of specific name
+	// this is too global for an override I think. Should be in a sub-class??
+	public void itemStateChanged(ItemEvent evt) {
+		CardLayout cl = (CardLayout)(cards.getLayout());
+		
+		keywordData.KeyData Key = (keywordData.KeyData)evt.getItem();
+		String ItemStr = Key.GUIName;
+		
+		if (ItemStr.equals("Remove Keyword"))
+		{
+			Object[] possibilities = (Object[]) kData.ActiveKeys.toArray();
+			
+			String s = (String)JOptionPane.showInputDialog(
+			                    null,
+			                    "Pick keyword\n",
+			                    "Customized Dialog",
+			                    JOptionPane.PLAIN_MESSAGE,
+			                    null,
+			                    possibilities,
+			                    null);
+			JComboBox cb = (JComboBox) evt.getSource();
+			cb.removeItem(ItemStr);
+			
+			System.out.println(s);
+		}
+		else
+		{
+			cl.show(cards, ItemStr);
+		}
+	}
+
 
 	public void addBottomButtonsl(Container pane) {
 		//Put the JComboBox in a JPanel to get a nicer look.
@@ -331,11 +386,6 @@ public class CardKeyword implements ItemListener {
 	}
 
 	
-	public void itemStateChanged(ItemEvent evt) {
-		CardLayout cl = (CardLayout)(cards.getLayout());
-		cl.show(cards, (String)evt.getItem());
-	}
-
 
 	public static class KeyData {
 		String Name;

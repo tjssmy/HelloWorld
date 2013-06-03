@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 public class keywordData {
 
@@ -39,14 +40,16 @@ public class keywordData {
 	
 	// Each Keyword data is this
 	public static class KeyData {
-		String Name;
+		JPanel Card;
+		String Name,GUIName;
 		ArrayList<ParaData> Paras = new ArrayList<ParaData>();
-		int numParas;
+		int numParas,numIns=0;
 		int Modified = 0;
 		GuiKeyStatus Status;
 		public KeyData(String name, ArrayList<ParaData> paras, int n, GuiKeyStatus status)
 		{
 			Name = name;
+			GUIName = name; // default is the same
 			Paras = paras;
 			numParas = n;
 			Status = status;
@@ -55,7 +58,7 @@ public class keywordData {
 		
 		public String toString() // override so combo box knows what to call it
 		{
-			return Name; 
+			return GUIName; 
 		}
 		
 	}
@@ -90,13 +93,15 @@ public class keywordData {
 			data = (Object) new String((String) P.Data);
 		else if (P.Type == ParaType.EnumType)
 		{
-			for (String s : List)
+			for (String s : P.ParaTypeList)
 				List.add(new String(s));
 
 			data = (Object) new String((String)P.Data); // default
 		}
 		
 		ParaData Pr = new ParaData(Name,P.Type,data,List);
+		Pr.Modified = P.Modified;
+		
 		return Pr;
 	}
 	
@@ -110,34 +115,38 @@ public class keywordData {
 			Paras.add(CopyPara(p));
 		
 		KeyData Kr = new KeyData(Name,Paras,NumParas,K.Status);
+		Kr.Modified = K.Modified;
+		
+		K.numIns++;
+		
 		return Kr;
 	}
 
 	// used for ActionListeners
 
 	public void SetDoubleData(int k, int p, Double D) {
-		(Keys.get(k)).Paras.get(p).Data = (Object) D;
-		(Keys.get(k)).Paras.get(p).Modified = 1;
-		(Keys.get(k)).Modified = 1;
+		(ActiveKeys.get(k)).Paras.get(p).Data = (Object) D;
+		(ActiveKeys.get(k)).Paras.get(p).Modified = 1;
+		(ActiveKeys.get(k)).Modified = 1;
 	}
 
 	public void SetIntegerData(int k, int p, Integer I) {
-		(Keys.get(k)).Paras.get(p).Data = (Object) I;
-		(Keys.get(k)).Paras.get(p).Modified = 1;
-		(Keys.get(k)).Modified = 1;
+		(ActiveKeys.get(k)).Paras.get(p).Data = (Object) I;
+		(ActiveKeys.get(k)).Paras.get(p).Modified = 1;
+		(ActiveKeys.get(k)).Modified = 1;
 	}
 
 	public void SetStringData(int k, int p, String S) {
-		(Keys.get(k)).Paras.get(p).Data = (Object) S;
-		(Keys.get(k)).Paras.get(p).Modified = 1;
-		(Keys.get(k)).Modified = 1;
+		(ActiveKeys.get(k)).Paras.get(p).Data = (Object) S;
+		(ActiveKeys.get(k)).Paras.get(p).Modified = 1;
+		(ActiveKeys.get(k)).Modified = 1;
 	}
 	
 	public void SetEnumTypeData(int k, int p, int I) {
-		(Keys.get(k)).Paras.get(p).Data = 
-				(Object) (Keys.get(k)).Paras.get(p).ParaTypeList.get(I);
-		(Keys.get(k)).Paras.get(p).Modified = 1;
-		(Keys.get(k)).Modified = 1;
+		(ActiveKeys.get(k)).Paras.get(p).Data = 
+				(Object) (ActiveKeys.get(k)).Paras.get(p).ParaTypeList.get(I);
+		(ActiveKeys.get(k)).Paras.get(p).Modified = 1;
+		(ActiveKeys.get(k)).Modified = 1;
 	}
 
 
@@ -282,12 +291,12 @@ public class keywordData {
 			File file = new File(OutFile);
 			BufferedWriter output = new BufferedWriter(new FileWriter(file));
 
-			for (k = 0; k < numKeys; k++) {
-				KeyData Key = Keys.get(k);
+			for (k = 0; k < ActiveKeys.size(); k++) {
+				KeyData Key = ActiveKeys.get(k);
 				
 				if (Key.Modified == 0) continue;
 				
-				output.write(Keys.get(k).Name);
+				output.write(ActiveKeys.get(k).Name);
 				
 				Ps = "  ";
 				
