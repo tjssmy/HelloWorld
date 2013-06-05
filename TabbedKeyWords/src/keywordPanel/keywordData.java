@@ -150,6 +150,15 @@ public class keywordData {
 		(ActiveKeys.get(k)).Modified = 1;
 	}
 
+	public void LoadActiveKeys()
+	{
+		for(KeyData K : this.Keys) {
+			if (K.Status == GuiKeyStatus.required) {
+				this.ActiveKeys.add(KeyCopy(K));
+				this.ActiveKeyNames.add(new String(K.Name));
+			}
+		}
+	}
 
 	public void readConfigKeyFile() {
 		int k,p,n;
@@ -225,7 +234,7 @@ public class keywordData {
 							data = (Object) new String(" ");
 							PType = ParaType.String;
 						}
-						else if (ParaTy.equals("{")) // begining of def type list 
+						else if (ParaTy.equals("{")) // beginning of defined type list 
 						{
 							int s=3;
 							PType = ParaType.EnumType;
@@ -270,13 +279,7 @@ public class keywordData {
 			}
 		}
 
-		for(KeyData K : this.Keys) {
-			if (K.Status == GuiKeyStatus.required) {
-				this.ActiveKeys.add(KeyCopy(K));
-				this.ActiveKeyNames.add(new String(K.Name));
-			}
-
-		}
+	
 
 	}
 
@@ -389,6 +392,20 @@ public class keywordData {
 		return NewToks;
 	}
 
+	static ArrayList<ParaData>  ReplacePara(ArrayList<ParaData> PList, ParaData P)
+	{
+		for(int i=0; i < PList.size();i ++)
+		{
+			if (PList.get(i).Name.equals(P.Name))
+			{
+				PList.set(i, P);
+				return PList;
+			}
+		}
+		
+		return null;
+	}
+	
 	public void readKeyFile(){
 
 		String origToks[];
@@ -438,13 +455,13 @@ public class keywordData {
 					int i=1;			
 					while ( i < n)
 					{
-						String Para,Data;
-						Para = toks.get(i);
+						String paraName,Data;
+						paraName = toks.get(i);
 
-						if (Para.contains("="))
+						if (paraName.contains("="))
 						{
-							String ParaEq[] = Para.split("=");
-							Para = ParaEq[0];
+							String ParaEq[] = paraName.split("=");
+							paraName = ParaEq[0];
 							Data = ParaEq[1];
 							i++;
 						}
@@ -455,7 +472,7 @@ public class keywordData {
 							i++;
 						}
 
-						ParaData P = FindParaFromName(PList,Para);
+						ParaData P = FindParaFromName(PList,paraName);
 
 						if (P != null)
 						{
@@ -502,6 +519,8 @@ public class keywordData {
 								JOptionPane.showMessageDialog(null,new String("Bad Keyword in file"));
 								System.exit(1);
 							}
+							
+//							ReplacePara(PList,P);
 						}
 						else 
 						{
@@ -510,7 +529,7 @@ public class keywordData {
 						}
 					}
 
-					ActiveKeys.add(Key);
+					ActiveKeys.add(NewKey);
 				}
 				else{
 					JOptionPane.showMessageDialog(null,new String("Bad Keyword in file"));
@@ -524,11 +543,23 @@ public class keywordData {
 		}
 	}
 
-	public void writeKeyFile(String OutFile){
+	public void writeKeyFile(){
 		int k,p;
 		String Ps = new String();
+		File file = null;
+		
+		JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
+		
+		int returnVal = fc.showSaveDialog(null);
+
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			file = fc.getSelectedFile();
+		} else {
+			System.exit(0);
+		}
+
 		try {
-			File file = new File(OutFile);
+
 			BufferedWriter output = new BufferedWriter(new FileWriter(file));
 
 			for (k = 0; k < ActiveKeys.size(); k++) {

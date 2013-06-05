@@ -1,1 +1,4 @@
-Disc   Name = 'disc1' 
+Block   Name = 'block2'  X0 = 1.000000  Y0 = 2.000000  Z0 = 3.000000  Tile = Rect 
+Material   Name = 'Material 1'  Kappa = 0.500000  EpsilonX = 11.000000 
+Mesh   Mode = WAVE_EQ  Dim = 2 
+Quad   Mode = ExtraNodes  Name = 'Qaud2'  Pad = SingleRow  TopPad = SingleRow 

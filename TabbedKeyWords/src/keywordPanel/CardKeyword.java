@@ -368,7 +368,7 @@ public class CardKeyword implements ItemListener {
 		{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				kData.writeKeyFile(kData.OutFile);
+				kData.writeKeyFile();
 		}});
 
 		ReadBut.addActionListener(new ActionListener()
@@ -376,19 +376,21 @@ public class CardKeyword implements ItemListener {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				kData.readKeyFile();
-			
+				forCards.removeAll();
+				addKeyWordPanel(forCards);
+				forCards.validate();
+				forCards.repaint();
 		}});
 
 		NewBut.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-//				addKeyWordPanel(CardPanel);
 				forCards.removeAll();
-				forCards.add(new JLabel("here is space"));
+				kData.LoadActiveKeys();
+				addKeyWordPanel(forCards);
 				forCards.validate();
 				forCards.repaint();
-////				CardPanel.setVisible(true);
 			
 		}});
 		
@@ -405,7 +407,6 @@ public class CardKeyword implements ItemListener {
 		forCards = new JPanel();
 		forCards.setPreferredSize(new Dimension(350,800));
 		frame.add(forCards);
-		forCards.add(new JLabel("here is space1"));
 		//	keywordCards.addKeyWordPanel(ForCards);
 		//	keywordCards.addKeyWordPanel(frame.getContentPane());
 		addBottomButtons(frame.getContentPane());
