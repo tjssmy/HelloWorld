@@ -14,12 +14,12 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 public class CardKeyword implements ItemListener {
-	JPanel cards; //a panel that uses CardLayout
-	JPanel forCards;
+	JPanel activeKeyPanel; //a panel that contains the activeKeyword cards
+	JPanel keyfilePanel;   //a panel to contain the comboboxes and cards
 	static keywordData kData;
 	static String ConfFile;
 	
-	public static class ParseData {
+	public class ParseData {
 		ParseStatus Status;
 		Object Data;
 		
@@ -33,7 +33,7 @@ public class CardKeyword implements ItemListener {
 	private enum ParseStatus {
 		ParseOk,ParseFail,ParseUnknown
 	}
-	private static ParseData DoubleCheckParse(String S, Double Def)
+	private ParseData DoubleCheckParse(String S, Double Def)
 	{
 		Double D;
 		ParseData ParseRet = new ParseData();
@@ -54,7 +54,7 @@ public class CardKeyword implements ItemListener {
 		}
 	}
 	
-	private static ParseData IntegerCheckParse(String S, Integer Def)
+	private ParseData IntegerCheckParse(String S, Integer Def)
 	{
 		Integer I;
 		ParseData ParseRet = new ParseData();
@@ -288,7 +288,7 @@ public class CardKeyword implements ItemListener {
 				cb.insertItemAt(KNew, cb.getItemCount()-1);
 				
 				JPanel card = CardList(k);
-				cards.add(card,KName);
+				activeKeyPanel.add(card,KName);
 		        System.out.println("Selected: " + KName);	
 			}
 		});
@@ -297,16 +297,16 @@ public class CardKeyword implements ItemListener {
 		comboBoxPane.add(cb);		
 		
 		//Create the panel that contains the "cards".
-		cards = new JPanel(new CardLayout());
+		activeKeyPanel = new JPanel(new CardLayout());
 
 		for (k = 0; k < kData.ActiveKeys.size(); k++) {
 			JPanel card = CardList(k);
 			keywordPanel.keywordData.KeyData K = kData.ActiveKeys.get(k); 
-			cards.add(card,K.Name);
+			activeKeyPanel.add(card,K.Name);
 		}
 
 		pane.add(comboBoxPane, BorderLayout.PAGE_START);
-		pane.add(cards, BorderLayout.CENTER);
+		pane.add(activeKeyPanel, BorderLayout.CENTER);
 		comboBoxPane.setVisible(true);
 		pane.setVisible(true);
 	}
@@ -314,7 +314,7 @@ public class CardKeyword implements ItemListener {
 	//  card/combo event handler -- finds card of specific name
 	// this is too global for an override I think. Should be in a sub-class??
 	public void itemStateChanged(ItemEvent evt) {
-		CardLayout cl = (CardLayout)(cards.getLayout());
+		CardLayout cl = (CardLayout)(activeKeyPanel.getLayout());
 		
 		keywordData.KeyData Key = (keywordData.KeyData)evt.getItem();
 		String ItemStr = Key.GUIName;
@@ -339,7 +339,7 @@ public class CardKeyword implements ItemListener {
 			}
 			else
 			{
-				cl.show(cards, ItemStr);
+				cl.show(activeKeyPanel, ItemStr);
 			}
 		}
 	}
@@ -376,21 +376,21 @@ public class CardKeyword implements ItemListener {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				kData.readKeyFile();
-				forCards.removeAll();
-				addKeyWordPanel(forCards);
-				forCards.validate();
-				forCards.repaint();
+				keyfilePanel.removeAll();
+				addKeyWordPanel(keyfilePanel);
+				keyfilePanel.validate();
+				keyfilePanel.repaint();
 		}});
 
 		NewBut.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				forCards.removeAll();
+				keyfilePanel.removeAll();
 				kData.LoadActiveKeys();
-				addKeyWordPanel(forCards);
-				forCards.validate();
-				forCards.repaint();
+				addKeyWordPanel(keyfilePanel);
+				keyfilePanel.validate();
+				keyfilePanel.repaint();
 			
 		}});
 		
@@ -404,9 +404,9 @@ public class CardKeyword implements ItemListener {
 	
 	private void CreateKeywordCards(JFrame frame)
 	{
-		forCards = new JPanel();
-		forCards.setPreferredSize(new Dimension(350,800));
-		frame.add(forCards);
+		keyfilePanel = new JPanel();
+		keyfilePanel.setPreferredSize(new Dimension(350,800));
+		frame.add(keyfilePanel);
 		//	keywordCards.addKeyWordPanel(ForCards);
 		//	keywordCards.addKeyWordPanel(frame.getContentPane());
 		addBottomButtons(frame.getContentPane());
