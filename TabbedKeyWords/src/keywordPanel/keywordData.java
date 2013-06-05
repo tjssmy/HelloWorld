@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -20,11 +21,11 @@ public class keywordData {
 	int numKeys;
 	ArrayList<KeyData> Keys = new ArrayList<KeyData>();
 	ArrayList<KeyData> ActiveKeys = new ArrayList<KeyData>();
-	
+
 	ArrayList<String>  KeyNames = new ArrayList<String>();
 	ArrayList<String>  ActiveKeyNames = new ArrayList<String>();
 
-	
+
 	public keywordData(String OutputFile,String ConfigFile){
 		this.OutFile = OutputFile;
 		this.ConfigFile = ConfigFile;
@@ -37,7 +38,7 @@ public class keywordData {
 	public enum GuiKeyStatus {
 		optional,required
 	}
-	
+
 	// Each Keyword data is this
 	public static class KeyData {
 		JPanel Card;
@@ -53,23 +54,23 @@ public class keywordData {
 			Paras = paras;
 			numParas = n;
 			Status = status;
-		
+
 		}
-		
+
 		public String toString() // override so combo box knows what to call it
 		{
 			return GUIName; 
 		}
-		
+
 	}
-	
+
 	public static class ParaData {
 		String Name;
 		ParaType Type;
 		Object Data;
 		ArrayList<String> ParaTypeList;
 		int Modified = 0;
-		
+
 		public ParaData(String name, ParaType type, Object data, ArrayList<String> paraTypeList)
 		{
 			Name = name;
@@ -84,7 +85,7 @@ public class keywordData {
 		String Name = new String(P.Name);
 		Object data = null;
 		ArrayList<String> List = new ArrayList<String>();
-		
+
 		if (P.Type == ParaType.Double)
 			data = (Object) new Double((Double) P.Data);
 		else if (P.Type == ParaType.Integer)
@@ -98,27 +99,27 @@ public class keywordData {
 
 			data = (Object) new String((String)P.Data); // default
 		}
-		
+
 		ParaData Pr = new ParaData(Name,P.Type,data,List);
 		Pr.Modified = P.Modified;
-		
+
 		return Pr;
 	}
-	
+
 	public static KeyData KeyCopy(KeyData K)
 	{
 		String Name = new String(K.Name);
 		int NumParas = K.numParas;
 		ArrayList<ParaData> Paras = new ArrayList<ParaData>();
-		
+
 		for (ParaData p : K.Paras)
 			Paras.add(CopyPara(p));
-		
+
 		KeyData Kr = new KeyData(Name,Paras,NumParas,K.Status);
 		Kr.Modified = K.Modified;
-		
+
 		K.numIns++;
-		
+
 		return Kr;
 	}
 
@@ -141,7 +142,7 @@ public class keywordData {
 		(ActiveKeys.get(k)).Paras.get(p).Modified = 1;
 		(ActiveKeys.get(k)).Modified = 1;
 	}
-	
+
 	public void SetEnumTypeData(int k, int p, int I) {
 		(ActiveKeys.get(k)).Paras.get(p).Data = 
 				(Object) (ActiveKeys.get(k)).Paras.get(p).ParaTypeList.get(I);
@@ -155,20 +156,20 @@ public class keywordData {
 		String toks[],KeyName,ParaName,ParaTy;
 		ParaType PType = null;
 		GuiKeyStatus GuiStatus;
-		
+
 		BufferedReader br = null;
 		KeyData Key;
 		Object data = null;
-		
+
 		int NumParas;
 		try {
 			String sCurrentLine;
- 
+
 			br = new BufferedReader(new FileReader(ConfigFile));
-			
+
 			sCurrentLine = br.readLine();
 			toks = sCurrentLine.split(" ");
-			
+
 			try {
 				this.numKeys = Integer.parseInt(toks[1]);
 			} catch (NumberFormatException e) {
@@ -176,7 +177,7 @@ public class keywordData {
 				JOptionPane.showMessageDialog(null,M);
 				System.exit(1);
 			}
-			
+
 			for (k = 1; k <= this.numKeys; k++)
 			{
 				sCurrentLine = br.readLine();
@@ -185,30 +186,30 @@ public class keywordData {
 				{
 					n = Integer.parseInt(toks[0]);
 					if (n != k) break;
-					
+
 					if (toks[2].equals("GuiOptional"))
 						GuiStatus = GuiKeyStatus.optional;
 					else GuiStatus = GuiKeyStatus.required;
-					
+
 					NumParas = Integer.parseInt(toks[4]);
 					KeyName = new String(toks[1]);
-					
+
 					ArrayList<ParaData> Paras = new ArrayList<ParaData>();
-					
+
 					for (p = 1; p <= NumParas; p++)
 					{
 						sCurrentLine = br.readLine();
 						toks = sCurrentLine.split(" ");
 						n = Integer.parseInt(toks[0]);
 						if (n != p) break;
-						
+
 						PType = null;
-						
+
 						ParaName = new String(toks[1]);
 						ParaTy = toks[2]; 
-						
+
 						ArrayList <String> ParaTypeList = new ArrayList<String>();
-						
+
 						if (ParaTy.equals("double")) 
 						{
 							data = (Object) Double.parseDouble(toks[3]);
@@ -228,16 +229,16 @@ public class keywordData {
 						{
 							int s=3;
 							PType = ParaType.EnumType;
-							
+
 							while (!toks[s].equals("}"))
 							{
 								String Etype = new String(toks[s]);
 								ParaTypeList.add(Etype);
 								s++;
 							}
-							
+
 							data = (Object) new String(toks[s+1]); // default
-							
+
 						}
 
 						if (PType != null)
@@ -246,17 +247,16 @@ public class keywordData {
 							Paras.add(Pd);
 						}
 					}
-					
+
 					this.KeyNames.add(KeyName);
-					
+
 					NumParas = Paras.size(); // we've skipped over ones we can't handle yet
 					Key = new KeyData(KeyName,Paras,NumParas,GuiStatus);
 					this.Keys.add(Key);
 				}
 				else 
 				{
-					String M = "Bad para line";
-					JOptionPane.showMessageDialog(null,M);
+					JOptionPane.showMessageDialog(null,new String("Bad Para Line"));
 					System.exit(1);
 				}
 			}					
@@ -269,21 +269,261 @@ public class keywordData {
 				ex.printStackTrace();
 			}
 		}
-		
+
 		for(KeyData K : this.Keys) {
 			if (K.Status == GuiKeyStatus.required) {
 				this.ActiveKeys.add(KeyCopy(K));
 				this.ActiveKeyNames.add(new String(K.Name));
 			}
-				
+
 		}
-		
+
 	}
 
-	public void readKeyFile(String InFile){
-	
+	private KeyData FindKeyFromName(String Name)
+	{
+
+		for (KeyData K : Keys)
+		{
+			if (K.Name.equals(Name))
+				return K;
+		}
+		return null;
 	}
-	
+
+	private ParaData FindParaFromName(ArrayList<ParaData> PList, String Name)
+	{
+
+		for (ParaData P : PList)
+		{
+			if (P.Name.equals(Name))
+				return P;
+		}
+		return null;
+	}
+
+	private ArrayList<String> ReFormQStrings(String toks[])
+	{
+		ArrayList<String> NewToks = new ArrayList<String>();
+				
+		int i = 0;
+		while (i < toks.length)
+		{
+			String t = toks[i];
+			int l = t.length();
+			
+			if (l == 0) { i++; continue;}
+			
+			if ((t.charAt(0) == '\'') &&  (t.charAt(l-1) == '\''))
+			{
+				NewToks.add(t.substring(1,l- 1));
+				i++;
+			}
+			else if ((t.charAt(0) == '\"') &&  (t.charAt(l-1) == '\"'))
+			{
+				NewToks.add(t.substring(1,l- 1));
+				i++;
+			}
+			else if (t.charAt(0) == '\'')
+			{
+				String Tok2 = new String(t.substring(1,l));
+				i++;
+				int foundEnd = 0;
+				while (i < toks.length)
+				{
+					String tn = toks[i];
+					if (tn.charAt(tn.length()-1) == '\'')
+					{
+						Tok2 = Tok2 + " " + tn.substring(0,tn.length()- 1);
+						foundEnd = 1;
+						i++;
+						break;
+					}
+					else 
+					{
+						Tok2 = Tok2 + tn;
+						i++;
+					}
+
+				}
+				if (foundEnd != 1) return null;
+
+				NewToks.add(Tok2);
+			}
+			else if (t.charAt(0) == '\"')
+			{
+				String Tok2 = new String(t.substring(1,l));
+				i++;
+				int foundEnd = 0;
+				while (i < toks.length)
+				{
+					
+
+					String tn = toks[i];
+					if (tn.charAt(tn.length()-1) == '\"')
+					{
+						Tok2 = Tok2 +  " " + tn.substring(0,tn.length()- 1);
+						foundEnd = 1;
+						i++;
+						break;
+					}
+					else 
+					{
+						Tok2 = Tok2 + tn;
+						i++;
+					}
+
+					if (foundEnd != 1) return null;
+
+					NewToks.add(Tok2);
+				}
+			}
+			else 
+			{
+				NewToks.add(toks[i]);
+				i++;
+			}
+
+		}
+
+		return NewToks;
+	}
+
+	public void readKeyFile(){
+
+		String origToks[];
+		ArrayList<String> toks = new ArrayList<String>();
+		BufferedReader br = null;
+		JFileChooser fc;
+		File file = null;
+		KeyData Key;
+
+		fc = new JFileChooser(System.getProperty("user.dir"));
+		int returnVal = fc.showOpenDialog(null);
+
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			file = fc.getSelectedFile();
+		} else {
+			System.exit(0);
+		}
+
+		try {
+			String sCurrentLine;
+			String keyName;
+
+			br = new BufferedReader(new FileReader(file));
+
+
+			while ((sCurrentLine = br.readLine()) != null)
+			{
+				origToks = sCurrentLine.split("\\s+");
+				
+
+				keyName = origToks[0];
+
+				if (keyName.length() == 0) continue;
+				if (keyName.charAt(0) == '*') continue;
+
+				toks = ReFormQStrings(origToks);
+				
+				Key = FindKeyFromName(keyName);
+
+				if (Key != null) {
+					KeyData NewKey = KeyCopy(Key);
+					NewKey.Modified = 1;
+
+					ArrayList<ParaData> PList = NewKey.Paras;
+
+					int n = toks.size()-1;
+					int i=1;			
+					while ( i < n)
+					{
+						String Para,Data;
+						Para = toks.get(i);
+
+						if (Para.contains("="))
+						{
+							String ParaEq[] = Para.split("=");
+							Para = ParaEq[0];
+							Data = ParaEq[1];
+							i++;
+						}
+						else 
+						{
+							i = i + 2; //Advance over equals
+							Data = toks.get(i);
+							i++;
+						}
+
+						ParaData P = FindParaFromName(PList,Para);
+
+						if (P != null)
+						{
+							P.Modified = 1;
+							if (P.Type == ParaType.Double)
+							{
+								try {
+									Double D = Double.parseDouble(Data);
+									P.Data = (Object) D;
+								}
+								catch (NumberFormatException e) 
+								{
+									JOptionPane.showMessageDialog(null,new String("Bad double in file"));
+									System.exit(1);	
+								}
+							}
+							else if (P.Type == ParaType.Integer)
+							{
+								try {
+									Integer I = Integer.parseInt(Data);
+									P.Data = (Object) I;
+								}
+								catch (NumberFormatException e) 
+								{
+									JOptionPane.showMessageDialog(null,new String("Bad Integer in file"));
+									System.exit(1);	
+								}
+							}
+							else if  (P.Type == ParaType.EnumType || P.Type == ParaType.String)
+							{
+								try {
+									String S = new String(Data);
+									P.Data = (Object) S;
+								}
+								catch (NumberFormatException e) 
+								{
+									JOptionPane.showMessageDialog(null,new String("Bad String in file"));
+									System.exit(1);	
+								}
+							}
+
+							else 
+							{
+								JOptionPane.showMessageDialog(null,new String("Bad Keyword in file"));
+								System.exit(1);
+							}
+						}
+						else 
+						{
+							JOptionPane.showMessageDialog(null,new String("Bad parameter in file"));
+							System.exit(1);
+						}
+					}
+
+					ActiveKeys.add(Key);
+				}
+				else{
+					JOptionPane.showMessageDialog(null,new String("Bad Keyword in file"));
+					System.exit(1);
+				}
+
+			}
+
+		} catch ( IOException e ) {
+			e.printStackTrace();
+		}
+	}
+
 	public void writeKeyFile(String OutFile){
 		int k,p;
 		String Ps = new String();
@@ -293,13 +533,13 @@ public class keywordData {
 
 			for (k = 0; k < ActiveKeys.size(); k++) {
 				KeyData Key = ActiveKeys.get(k);
-				
+
 				if (Key.Modified == 0) continue;
-				
+
 				output.write(ActiveKeys.get(k).Name);
-				
+
 				Ps = "  ";
-				
+
 				for (p = 0; p < Key.numParas; p++) {
 
 					ParaData Para = Key.Paras.get(p);
@@ -362,7 +602,7 @@ public class keywordData {
 		String S2 = new String("A second string");
 		Pd = new ParaData("Name1",ParaType.String,(Object)S2,null);
 		Paras.add(Pd);
-		
+
 		ArrayList<ParaData> Paras2 = new ArrayList<ParaData>();
 
 		int NumParas2 = 6;

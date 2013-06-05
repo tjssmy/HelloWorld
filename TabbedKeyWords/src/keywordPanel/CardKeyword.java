@@ -10,11 +10,12 @@ import java.util.ArrayList;
 
 import javax.swing.*;
 //import java.util.ArrayList;
-import javax.swing.border.Border;
+//import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 public class CardKeyword implements ItemListener {
 	JPanel cards; //a panel that uses CardLayout
+	JPanel forCards;
 	static keywordData kData;
 	static String ConfFile;
 	
@@ -76,13 +77,7 @@ public class CardKeyword implements ItemListener {
 	}
 	
 	private JPanel paraEntry(final int k, final int p) {
-		
-		Border paddingBorder = BorderFactory.createEmptyBorder(10,10,10,10);
-		
-		if (k == 7 && p == 13)
-		{
-			System.out.println("here");
-		}
+			
 		keywordPanel.keywordData.KeyData K = kData.ActiveKeys.get(k); 
 		keywordPanel.keywordData.ParaData P = K.Paras.get(p);
 		keywordPanel.keywordData.ParaType Type = P.Type;
@@ -246,8 +241,7 @@ public class CardKeyword implements ItemListener {
 	
 	public void addKeyWordPanel(Container pane) {
 		//Put the JComboBox in a JPanel to get a nicer look.
-		
-		
+
 		JPanel comboBoxPane = new JPanel(); //use FlowLayout
 		comboBoxPane.setLayout(new GridLayout(2,2));
 		
@@ -313,6 +307,8 @@ public class CardKeyword implements ItemListener {
 
 		pane.add(comboBoxPane, BorderLayout.PAGE_START);
 		pane.add(cards, BorderLayout.CENTER);
+		comboBoxPane.setVisible(true);
+		pane.setVisible(true);
 	}
 
 	//  card/combo event handler -- finds card of specific name
@@ -322,39 +318,44 @@ public class CardKeyword implements ItemListener {
 		
 		keywordData.KeyData Key = (keywordData.KeyData)evt.getItem();
 		String ItemStr = Key.GUIName;
-		
-		if (ItemStr.equals("Remove Keyword"))
+				
+		if (evt.getStateChange() == ItemEvent.SELECTED)
 		{
-			Object[] possibilities = (Object[]) kData.ActiveKeys.toArray();
-			
-			String s = (String)JOptionPane.showInputDialog(
-			                    null,
-			                    "Pick keyword\n",
-			                    "Customized Dialog",
-			                    JOptionPane.PLAIN_MESSAGE,
-			                    null,
-			                    possibilities,
-			                    null);
-			JComboBox cb = (JComboBox) evt.getSource();
-			cb.removeItem(ItemStr);
-			
-			System.out.println(s);
-		}
-		else
-		{
-			cl.show(cards, ItemStr);
+			if (ItemStr.equals("Remove Keyword"))
+			{
+				java.util.List<keywordPanel.keywordData.KeyData> Keys = kData.ActiveKeys.subList(0, kData.ActiveKeys.size()-1);
+				Object[] options = (Object[]) Keys.toArray();
+
+				JComboBox cb = (JComboBox) evt.getSource();
+
+				keywordData.KeyData K = (keywordData.KeyData)JOptionPane.showInputDialog(
+						null, "Pick keyword\n", "Customized Dialog",
+						JOptionPane.PLAIN_MESSAGE, null,options,null);
+
+				cb.removeItem(K);
+				kData.ActiveKeys.remove(K);
+
+				cb.setSelectedIndex(0); // set back to 1st key
+			}
+			else
+			{
+				cl.show(cards, ItemStr);
+			}
 		}
 	}
 
 
-	public void addBottomButtonsl(Container pane) {
+	public void addBottomButtons(final Container pane) {
 		//Put the JComboBox in a JPanel to get a nicer look.
 		JPanel Buttons = new JPanel(); 
 		Buttons.setLayout(new GridLayout(1,3));
 		
 		JButton ReadBut = new JButton("Read File");
+		JButton NewBut = new JButton("New File");
 		JButton WriteBut = new JButton("Write File");
 		JButton ExitBut = new JButton("Exit");
+		
+//		forCards.add(new JLabel("here is space3"));
 		
 		ExitBut.addActionListener(new ActionListener()
 		{
@@ -374,33 +375,48 @@ public class CardKeyword implements ItemListener {
 		{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				kData.readConfigKeyFile();
+				kData.readKeyFile();
 			
 		}});
 
+		NewBut.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+//				addKeyWordPanel(CardPanel);
+				forCards.removeAll();
+				forCards.add(new JLabel("here is space"));
+				forCards.validate();
+				forCards.repaint();
+////				CardPanel.setVisible(true);
+			
+		}});
+		
+		Buttons.add(NewBut);
 		Buttons.add(ReadBut);
 		Buttons.add(WriteBut);
 		Buttons.add(ExitBut);
 		
 		pane.add(Buttons, BorderLayout.PAGE_END);
 	}
-
 	
+	private void CreateKeywordCards(JFrame frame)
+	{
+		forCards = new JPanel();
+		forCards.setPreferredSize(new Dimension(350,800));
+		frame.add(forCards);
+		forCards.add(new JLabel("here is space1"));
+		//	keywordCards.addKeyWordPanel(ForCards);
+		//	keywordCards.addKeyWordPanel(frame.getContentPane());
+		addBottomButtons(frame.getContentPane());
 
-	public static class KeyData {
-		String Name;
-		String Paras[];
-		int num;
+		//Display the window.
+		frame.pack();
+		frame.setVisible(true);
 
-		public KeyData(String name, String Pnames[], int n)
-		{
-			Name = name;
-			Paras = Pnames;
-			num = n;
-		}
+//		forCards.add(new JLabel("here is space2"));
 	}
-
-
+	
  	private static void createKeyWordPanel() {
 		//Create and set up the window.
 		JFrame frame = new JFrame("CardLayoutDemo");
@@ -414,14 +430,9 @@ public class CardKeyword implements ItemListener {
 //		kData.testKeyFile();
 
 		//Create and set up the content pane.
-		CardKeyword demo = new CardKeyword();
-
-		demo.addKeyWordPanel(frame.getContentPane());
-		demo.addBottomButtonsl(frame.getContentPane());
+		CardKeyword keywordCards = new CardKeyword();
+		keywordCards.CreateKeywordCards(frame);
 		
-		//Display the window.
-		frame.pack();
-		frame.setVisible(true);
 	}
 
 	public static void main(String[] args) {
