@@ -2,6 +2,9 @@ package keywordPanel;
 
 import java.util.ArrayList;
 
+import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -9,9 +12,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 public class keywordData {
 
@@ -165,6 +172,79 @@ public class keywordData {
 		(ActiveKeys.get(k)).Modified = 1;
 	}
 
+	public void SetListData(int k, int p, JButton B)
+	{
+		ParaData P = ActiveKeys.get(k).Paras.get(p);
+		
+		if (P.ListType == ParaListType.Double && P.ListDim == 3)
+			SetDouble3Data(k,p,B);
+	}
+	
+	public void SetDouble3Data(int k, int p, JButton B)
+	{
+		String columnNames[] = {"1","2","3"};
+		Object[][] data = {{"x1","y1","z1"},
+				{"x2","y2","z2"},
+				{"x2","y2","z2"},
+				{"x2","y2","z2"}};
+		DefaultTableModel model = new DefaultTableModel(data, columnNames);
+		final JTable table = new JTable(model);
+		table.setPreferredScrollableViewportSize(new Dimension(500, 150));
+		table.setFillsViewportHeight(true);
+		table.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+
+				Object[] options = { "Add Row", "Delete Row" };
+				int ret = JOptionPane.showOptionDialog(null, "Make A Choice", "Add/Delete",
+						JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
+						null, options, options[0]);
+
+				DefaultTableModel model = (DefaultTableModel) table.getModel();
+				int[] rows = table.getSelectedRows();
+
+				if (ret == 1)
+				{
+					for(int i=0;i<rows.length;i++){
+						model.removeRow(rows[i]-i);
+					}
+				}
+				else // ret == 0
+				{
+					String[] NewRow = {"n1","n2","n3"}; 
+					model.insertRow(rows[0]+1,NewRow);
+				}
+			}});
+		JScrollPane Jp = new JScrollPane(table);
+
+		int result = JOptionPane.showConfirmDialog(B,Jp, "List Values",
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+		if(result == 0)
+		{
+			System.out.println("ok");
+
+			int numRows = table.getRowCount();
+			int numCols = table.getColumnCount();
+			DefaultTableModel model1 = (DefaultTableModel) table.getModel();
+
+			System.out.println("Value of data: ");
+			for (int i=0; i < numRows; i++) {
+				System.out.print("    row " + i + ":");
+				for (int j=0; j < numCols; j++) {
+					System.out.print("  " + model1.getValueAt(i, j));
+				}
+				System.out.println();
+			}
+			System.out.println("--------------------------");
+
+		}
+		else
+		{
+			System.out.println("cancel");
+		}
+
+	}
+	
 	public void LoadActiveKeys()
 	{
 		for(KeyData K : this.Keys) {
