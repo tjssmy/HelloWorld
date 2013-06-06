@@ -25,22 +25,27 @@ public class keywordData {
 	ArrayList<String>  KeyNames = new ArrayList<String>();
 	ArrayList<String>  ActiveKeyNames = new ArrayList<String>();
 
+	KeyData RemoveKeywordDummy;
 
-	public keywordData(String OutputFile,String ConfigFile){
-		this.OutFile = OutputFile;
+	public keywordData(String ConfigFile){
 		this.ConfigFile = ConfigFile;
+		RemoveKeywordDummy = new KeyData(new String("Remove Keyword"),null,0,null);
 	}
 
 	public enum ParaType {
-		Double,Integer,String,File,ListOfDoubles,EnumType
+		Double,Integer,String,File,List,EnumType
+	}
+	public enum ParaListType {
+		Undef,Double,Integer,String
 	}
 
+	
 	public enum GuiKeyStatus {
 		optional,required
 	}
 
 	// Each Keyword data is this
-	public static class KeyData {
+	public class KeyData {
 		JPanel Card;
 		String Name,GUIName;
 		ArrayList<ParaData> Paras = new ArrayList<ParaData>();
@@ -64,23 +69,29 @@ public class keywordData {
 
 	}
 
-	public static class ParaData {
+	public class ParaData {
 		String Name;
 		ParaType Type;
 		Object Data;
 		ArrayList<String> ParaTypeList;
+		ParaListType ListType;
+		int ListDim=0;
 		int Modified = 0;
 
-		public ParaData(String name, ParaType type, Object data, ArrayList<String> paraTypeList)
+		public ParaData(String name, ParaType type, Object data,
+				ArrayList<String> paraTypeList, 
+				int PListdim, ParaListType PListType)
 		{
 			Name = name;
 			Type = type;
 			Data = data;
 			ParaTypeList = paraTypeList;
+			ListDim = PListdim;
+			ListType = PListType;
 		}
 	}
 
-	private static ParaData CopyPara(ParaData P)
+	private ParaData CopyPara(ParaData P)
 	{
 		String Name = new String(P.Name);
 		Object data = null;
@@ -99,14 +110,18 @@ public class keywordData {
 
 			data = (Object) new String((String)P.Data); // default
 		}
-
-		ParaData Pr = new ParaData(Name,P.Type,data,List);
+		else if (P.Type == ParaType.List)
+		{
+			data = null; // default
+		}
+		
+		ParaData Pr = new ParaData(Name,P.Type,data,List,P.ListDim,P.ListType);
 		Pr.Modified = P.Modified;
 
 		return Pr;
 	}
 
-	public static KeyData KeyCopy(KeyData K)
+	public KeyData KeyCopy(KeyData K)
 	{
 		String Name = new String(K.Name);
 		int NumParas = K.numParas;
@@ -207,6 +222,8 @@ public class keywordData {
 
 					for (p = 1; p <= NumParas; p++)
 					{
+						int PListDim=0;
+						ParaListType PListType =ParaListType.Undef;
 						sCurrentLine = br.readLine();
 						toks = sCurrentLine.split(" ");
 						n = Integer.parseInt(toks[0]);
@@ -234,6 +251,49 @@ public class keywordData {
 							data = (Object) new String(" ");
 							PType = ParaType.String;
 						}
+						else if (ParaTy.equals("GSList*")) 
+						{
+							PType = ParaType.List;
+							
+							if (toks[3].equals("double"))
+							{
+								PListDim = 1;
+								PListType = ParaListType.Double;
+							} 
+							else if (toks[3].equals("double2"))
+							{
+								PListDim = 2;
+								PListType = ParaListType.Double;
+							}
+							else if (toks[3].equals("double3"))
+							{
+								PListDim = 3;
+								PListType = ParaListType.Double;
+							}
+							else if (toks[3].equals("int"))
+							{
+								PListDim = 1;
+								PListType = ParaListType.Integer;
+							} 
+							else if (toks[3].equals("int2"))
+							{
+								PListDim = 2;
+								PListType = ParaListType.Integer;
+							}
+							else if (toks[3].equals("int3"))
+							{
+								PListDim = 3;
+								PListType = ParaListType.Integer;
+							}
+							else if (toks[3].equals("char*"))
+							{
+								PListDim = 3;
+								PListType = ParaListType.String;
+							}
+							
+							data = null;
+							
+						}
 						else if (ParaTy.equals("{")) // beginning of defined type list 
 						{
 							int s=3;
@@ -252,7 +312,8 @@ public class keywordData {
 
 						if (PType != null)
 						{
-							ParaData Pd = new ParaData(ParaName,PType,(Object)data,ParaTypeList);
+							ParaData Pd = new ParaData(ParaName,PType,(Object)data,
+									ParaTypeList,PListDim,PListType);
 							Paras.add(Pd);
 						}
 					}
@@ -602,77 +663,77 @@ public class keywordData {
 
 	}
 
-	public void testKeyFile(){
-		//		keywordData Keys = new keywordData("FileName");
-		this.numKeys = 5;
-
-		ArrayList<ParaData> Paras = new ArrayList<ParaData>();
-
-		int NumParas = 6;
-
-		Double D1 = 50.0;
-		ParaData Pd = new ParaData("Name1",ParaType.Double,(Object)D1,null);
-		Paras.add(Pd);
-
-		Double D2 = 150.0;
-		Pd = new ParaData("Name2",ParaType.Double,(Object)D2,null);
-		Paras.add(Pd);
-
-		Integer I1 = 15;
-		Pd = new ParaData("Name3",ParaType.Integer,(Object)I1,null);
-		Paras.add(Pd);
-
-		Integer I2 = 115;
-		Pd = new ParaData("Name4",ParaType.Integer,(Object)I2,null);
-		Paras.add(Pd);
-
-		String S1 = new String("A string");
-		Pd = new ParaData("Name1",ParaType.String,(Object)S1,null);
-		Paras.add(Pd);
-
-		String S2 = new String("A second string");
-		Pd = new ParaData("Name1",ParaType.String,(Object)S2,null);
-		Paras.add(Pd);
-
-		ArrayList<ParaData> Paras2 = new ArrayList<ParaData>();
-
-		int NumParas2 = 6;
-
-		Double D12 = 50.0;
-		ParaData Pd2 = new ParaData("Name1",ParaType.Double,(Object)D12,null);
-		Paras2.add(Pd2);
-
-		Double D22 = 150.0;
-		Pd2 = new ParaData("Name2",ParaType.Double,(Object)D22,null);
-		Paras2.add(Pd2);
-
-		Integer I12 = 15;
-		Pd2 = new ParaData("Name3",ParaType.Integer,(Object)I12,null);
-		Paras2.add(Pd2);
-
-		Integer I22 = 115;
-		Pd2 = new ParaData("Name4",ParaType.Integer,(Object)I22,null);
-		Paras2.add(Pd2);
-
-		String S12 = new String("A string");
-		Pd2 = new ParaData("Name1",ParaType.String,(Object)S12,null);
-		Paras2.add(Pd2);
-
-		String S22 = new String("A second string");
-		Pd2 = new ParaData("Name1",ParaType.String,(Object)S22,null);
-		Paras2.add(Pd2);
-
-		this.KeyNames.add("Growth");
-		this.Keys.add(new KeyData("Growth",Paras,NumParas,GuiKeyStatus.required));
-		this.KeyNames.add("GlView");
-		this.Keys.add(new KeyData("GlView",Paras2,NumParas2,GuiKeyStatus.optional));
-		this.KeyNames.add("Main");
-		this.Keys.add(new KeyData("Main",Paras,NumParas,GuiKeyStatus.optional));
-		this.KeyNames.add("Mob");
-		this.Keys.add(new KeyData("Mob",Paras,NumParas,GuiKeyStatus.optional));
-		this.KeyNames.add("Substrate");
-		this.Keys.add(new KeyData("Substrate",Paras2,NumParas2,GuiKeyStatus.optional));
-
-	}
+//	public void testKeyFile(){
+//		//		keywordData Keys = new keywordData("FileName");
+//		this.numKeys = 5;
+//
+//		ArrayList<ParaData> Paras = new ArrayList<ParaData>();
+//
+//		int NumParas = 6;
+//
+//		Double D1 = 50.0;
+//		ParaData Pd = new ParaData("Name1",ParaType.Double,(Object)D1,null);
+//		Paras.add(Pd);
+//
+//		Double D2 = 150.0;
+//		Pd = new ParaData("Name2",ParaType.Double,(Object)D2,null);
+//		Paras.add(Pd);
+//
+//		Integer I1 = 15;
+//		Pd = new ParaData("Name3",ParaType.Integer,(Object)I1,null);
+//		Paras.add(Pd);
+//
+//		Integer I2 = 115;
+//		Pd = new ParaData("Name4",ParaType.Integer,(Object)I2,null);
+//		Paras.add(Pd);
+//
+//		String S1 = new String("A string");
+//		Pd = new ParaData("Name1",ParaType.String,(Object)S1,null);
+//		Paras.add(Pd);
+//
+//		String S2 = new String("A second string");
+//		Pd = new ParaData("Name1",ParaType.String,(Object)S2,null);
+//		Paras.add(Pd);
+//
+//		ArrayList<ParaData> Paras2 = new ArrayList<ParaData>();
+//
+//		int NumParas2 = 6;
+//
+//		Double D12 = 50.0;
+//		ParaData Pd2 = new ParaData("Name1",ParaType.Double,(Object)D12,null);
+//		Paras2.add(Pd2);
+//
+//		Double D22 = 150.0;
+//		Pd2 = new ParaData("Name2",ParaType.Double,(Object)D22,null);
+//		Paras2.add(Pd2);
+//
+//		Integer I12 = 15;
+//		Pd2 = new ParaData("Name3",ParaType.Integer,(Object)I12,null);
+//		Paras2.add(Pd2);
+//
+//		Integer I22 = 115;
+//		Pd2 = new ParaData("Name4",ParaType.Integer,(Object)I22,null);
+//		Paras2.add(Pd2);
+//
+//		String S12 = new String("A string");
+//		Pd2 = new ParaData("Name1",ParaType.String,(Object)S12,null);
+//		Paras2.add(Pd2);
+//
+//		String S22 = new String("A second string");
+//		Pd2 = new ParaData("Name1",ParaType.String,(Object)S22,null);
+//		Paras2.add(Pd2);
+//
+//		this.KeyNames.add("Growth");
+//		this.Keys.add(new KeyData("Growth",Paras,NumParas,GuiKeyStatus.required));
+//		this.KeyNames.add("GlView");
+//		this.Keys.add(new KeyData("GlView",Paras2,NumParas2,GuiKeyStatus.optional));
+//		this.KeyNames.add("Main");
+//		this.Keys.add(new KeyData("Main",Paras,NumParas,GuiKeyStatus.optional));
+//		this.KeyNames.add("Mob");
+//		this.Keys.add(new KeyData("Mob",Paras,NumParas,GuiKeyStatus.optional));
+//		this.KeyNames.add("Substrate");
+//		this.Keys.add(new KeyData("Substrate",Paras2,NumParas2,GuiKeyStatus.optional));
+//
+//	}
 
 }

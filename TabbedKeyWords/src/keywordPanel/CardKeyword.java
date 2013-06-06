@@ -16,8 +16,14 @@ import javax.swing.border.EmptyBorder;
 public class CardKeyword implements ItemListener {
 	JPanel activeKeyPanel; //a panel that contains the activeKeyword cards
 	JPanel keyfilePanel;   //a panel to contain the comboboxes and cards
-	static keywordData kData;
-	static String ConfFile;
+	keywordData kData;
+	
+	public CardKeyword(String confFile) {
+
+		kData = new keywordData(confFile);
+		kData.readConfigKeyFile();
+
+	}
 	
 	public class ParseData {
 		ParseStatus Status;
@@ -33,6 +39,8 @@ public class CardKeyword implements ItemListener {
 	private enum ParseStatus {
 		ParseOk,ParseFail,ParseUnknown
 	}
+	
+
 	private ParseData DoubleCheckParse(String S, Double Def)
 	{
 		Double D;
@@ -165,7 +173,22 @@ public class CardKeyword implements ItemListener {
 			}});
 			break;
 		}
-		case ListOfDoubles: {
+		case List: {
+			final JButton B = new JButton("List Values");
+			Entry.add(B);
+			B.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					JPanel Jp = new JPanel();
+					
+//					http://docs.oracle.com/javase/tutorial/uiswing/components/table.html#simple
+					
+					Jp.add(new JLabel("here"));
+					int result = JOptionPane.showConfirmDialog(B, Jp, "List Values",
+				            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);	
+			}});
+			
 			break;
 		}
 		case String: {
@@ -258,8 +281,7 @@ public class CardKeyword implements ItemListener {
 		
 		ANames.addAll(kData.ActiveKeyNames);
 		
-		keywordData.KeyData DummyKey = 
-				new keywordData.KeyData(new String("Remove Keyword"),null,0,null); 
+		keywordData.KeyData DummyKey = kData.RemoveKeywordDummy;
 		
 		kData.ActiveKeys.add(DummyKey);	
 		
@@ -275,7 +297,7 @@ public class CardKeyword implements ItemListener {
 			public void actionPerformed(ActionEvent e) {
 				JComboBox CB = (JComboBox) e.getSource();
 				keywordData.KeyData K = (keywordData.KeyData) CB.getSelectedItem();
-				keywordData.KeyData KNew = keywordData.KeyCopy(K);
+				keywordData.KeyData KNew = kData.KeyCopy(K);
 				int k = kData.ActiveKeys.size()-1; // last index (dummy key)
 				
 				kData.ActiveKeys.add(k,KNew); // insert and push last element to end
@@ -402,41 +424,57 @@ public class CardKeyword implements ItemListener {
 		pane.add(Buttons, BorderLayout.PAGE_END);
 	}
 	
-	private void CreateKeywordCards(JFrame frame)
+	private void CreateKeywordCards(JPanel mainPanel)
 	{
 		keyfilePanel = new JPanel();
 		keyfilePanel.setPreferredSize(new Dimension(350,800));
-		frame.add(keyfilePanel);
+		mainPanel.add(keyfilePanel);
 		//	keywordCards.addKeyWordPanel(ForCards);
 		//	keywordCards.addKeyWordPanel(frame.getContentPane());
-		addBottomButtons(frame.getContentPane());
+		addBottomButtons(mainPanel);
 
-		//Display the window.
-		frame.pack();
-		frame.setVisible(true);
-
+		//
 //		forCards.add(new JLabel("here is space2"));
 	}
 	
- 	private static void createKeyWordPanel() {
+ 	private static void createKeyWordPanel(String[] args) {
 		//Create and set up the window.
-		JFrame frame = new JFrame("CardLayoutDemo");
-
-		//		frame.setPreferredSize(new Dimension(350,800));
+ 		String confFile=null;
+ 		
+		if (args.length == 2 && args[0].equals("-c"))
+		{
+			confFile = args[1];
+		}
+		else 
+		{
+			System.out.println("Command Line args bad\n");
+			System.exit(0);
+		}
+				
+		JFrame frame = new JFrame("Input File");
+		JPanel J0 = new JPanel();
+		JPanel J1 = new JPanel(new BorderLayout());
+		JPanel J2 = new JPanel(new BorderLayout());
+		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		kData = new keywordData("Outfile.run",ConfFile);
-		
-		kData.readConfigKeyFile();
-//		kData.testKeyFile();
-
 		//Create and set up the content pane.
-		CardKeyword keywordCards = new CardKeyword();
-		keywordCards.CreateKeywordCards(frame);
+		CardKeyword keywordCards = new CardKeyword(confFile);
+		keywordCards.CreateKeywordCards(J1);
+		J0.add(J1);
 		
+		CardKeyword keywordCards2 = new CardKeyword(confFile);
+		keywordCards2.CreateKeywordCards(J2);
+		J0.add(J2);
+		
+//		Display the window.
+		frame.add(J0);
+		frame.pack();
+		frame.setVisible(true);
+
 	}
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		
 		/**
 		 * Create the GUI and show it.  For thread safety,vg
@@ -460,22 +498,12 @@ public class CardKeyword implements ItemListener {
 		/* Turn off metal's use of bold fonts */
 		UIManager.put("swing.boldMetal", Boolean.FALSE);
 
-		
-		if (args.length == 2 && args[0].equals("-c"))
-		{
-			ConfFile = args[1];
-		}
-		else 
-		{
-			System.out.println("Command Line args bad\n");
-			System.exit(0);
-		}
-				
+	
 		//Schedule a job for the event dispatch thread:
 		//creating and showing this application's GUI.
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				createKeyWordPanel();
+				createKeyWordPanel(args);
 			}
 		});
 	}
