@@ -82,12 +82,12 @@ public class keywordData {
 		Object Data;
 		ArrayList<String> ParaTypeList;
 		ParaListType ListType;
-		int ListDim=0;
+		int ListDim=0,ListNum=0;
 		int Modified = 0;
 
 		public ParaData(String name, ParaType type, Object data,
 				ArrayList<String> paraTypeList, 
-				int PListdim, ParaListType PListType)
+				int PListdim, ParaListType PListType,int PListNum)
 		{
 			Name = name;
 			Type = type;
@@ -95,6 +95,7 @@ public class keywordData {
 			ParaTypeList = paraTypeList;
 			ListDim = PListdim;
 			ListType = PListType;
+			ListNum = PListNum;
 		}
 	}
 
@@ -122,7 +123,7 @@ public class keywordData {
 			data = null; // default
 		}
 		
-		ParaData Pr = new ParaData(Name,P.Type,data,List,P.ListDim,P.ListType);
+		ParaData Pr = new ParaData(Name,P.Type,data,List,P.ListDim,P.ListType,P.ListNum);
 		Pr.Modified = P.Modified;
 
 		return Pr;
@@ -174,19 +175,31 @@ public class keywordData {
 
 	public void SetListData(int k, int p, JButton B)
 	{
-		ParaData P = ActiveKeys.get(k).Paras.get(p);
+//		ParaData P = ActiveKeys.get(k).Paras.get(p);
 		
-		if (P.ListType == ParaListType.Double && P.ListDim == 3)
+//		if (P.ListType == ParaListType.Double && P.ListDim == 3)
 			SetDouble3Data(k,p,B);
+			
+			
+			
 	}
 	
 	public void SetDouble3Data(int k, int p, JButton B)
 	{
-		String columnNames[] = {"1","2","3"};
-		Object[][] data = {{"x1","y1","z1"},
-				{"x2","y2","z2"},
-				{"x2","y2","z2"},
-				{"x2","y2","z2"}};
+//		
+		ParaData P = ActiveKeys.get(k).Paras.get(p);
+		
+		int Cols = P.ListDim;
+//		int Rows = P.ListNum;
+		
+		Object[] columnNames = new String[Cols];
+		
+		columnNames[0] = "1";
+		if (Cols >= 2) columnNames[1] = "2";
+		if (Cols == 3) columnNames[2] = "3";
+		
+		Object[][] data = (Object[][]) P.Data;
+		
 		DefaultTableModel model = new DefaultTableModel(data, columnNames);
 		final JTable table = new JTable(model);
 		table.setPreferredScrollableViewportSize(new Dimension(500, 150));
@@ -303,6 +316,7 @@ public class keywordData {
 					for (p = 1; p <= NumParas; p++)
 					{
 						int PListDim=0;
+						int PListNum=0;
 						ParaListType PListType =ParaListType.Undef;
 						sCurrentLine = br.readLine();
 						toks = sCurrentLine.split(" ");
@@ -339,6 +353,10 @@ public class keywordData {
 							{
 								PListDim = 1;
 								PListType = ParaListType.Double;
+								Double[][] D = new Double[1][1];
+								D[0][0] = new Double(0.0);
+								PListNum = 1;
+								data = (Object)D;
 							} 
 							else if (toks[3].equals("double2"))
 							{
@@ -354,6 +372,10 @@ public class keywordData {
 							{
 								PListDim = 1;
 								PListType = ParaListType.Integer;
+								Integer[][] I = new Integer[1][1];
+								I[1][1] = new Integer(0);
+								PListNum = 1;
+								data = (Object)I;
 							} 
 							else if (toks[3].equals("int2"))
 							{
@@ -371,7 +393,7 @@ public class keywordData {
 								PListType = ParaListType.String;
 							}
 							
-							data = null;
+							
 							
 						}
 						else if (ParaTy.equals("{")) // beginning of defined type list 
@@ -393,7 +415,7 @@ public class keywordData {
 						if (PType != null)
 						{
 							ParaData Pd = new ParaData(ParaName,PType,(Object)data,
-									ParaTypeList,PListDim,PListType);
+									ParaTypeList,PListDim,PListType,PListNum);
 							Paras.add(Pd);
 						}
 					}
