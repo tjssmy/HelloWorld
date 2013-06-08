@@ -1,24 +1,20 @@
 package keywordPanel;
 
-import java.util.ArrayList;
 
-import java.awt.Dimension;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
+
+import tjsTableWidgets.TjsTable;
 
 public class keywordData {
 
@@ -206,75 +202,28 @@ public class keywordData {
 		final int Cols = P.ListDim;
 //		int Rows = P.ListNum;
 		
-		Object[] columnNames = new String[Cols];
+		String[] columnNames = new String[Cols];
 		
 		columnNames[0] = "1";
 		if (Cols >= 2) columnNames[1] = "2";
 		if (Cols == 3) columnNames[2] = "3";
 		
 		Object[][] data = (Object[][]) P.Data;
-		int CSize = Cols*50;
 		
-		DefaultTableModel model = new DefaultTableModel(data, columnNames);
-		final JTable table = new JTable(model);
-		table.setPreferredScrollableViewportSize(new Dimension(CSize, 200));
-		table.setFillsViewportHeight(true);
-		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
-		Object D = dtm.getValueAt(0, 0);
+				
+		final TjsTable table = new TjsTable(columnNames,data,B);
 		
-		table.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				
-				if (e.getButton() == MouseEvent.BUTTON1) return;
-				
-				Object[] options = { "Add Row", "Delete Row" };
-				int ret = JOptionPane.showOptionDialog(table, "Make A Choice", "Add/Delete",
-						JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
-						null, options, options[0]);
-
-				DefaultTableModel model = (DefaultTableModel) table.getModel();
-				int[] rows = table.getSelectedRows();
-
-				
-				if (ret == 1)
-				{
-					for(int i=0;i<rows.length;i++){
-						model.removeRow(rows[i]-i);
-					}
-				}
-				else // ret == 0
-				{
-					Double[]  NewRow = new Double[Cols];
-					NewRow[0] = new Double(0.0);
-					
-					if ( Cols == 2) {
-						NewRow[1] = new Double(0.0);
-					}
-					else if (Cols == 3) {
-						NewRow[2] = new Double(0.0);
-					}
-					
-					if (rows.length == 0) {
-						model.insertRow(table.getRowCount()+1,NewRow); // put at end
-					} else 
-					{
-						model.insertRow(rows[0]+1,NewRow);
-					}
-				}
-			}});
-		JScrollPane Jp = new JScrollPane(table);
-
-		int result = JOptionPane.showConfirmDialog(B,Jp, "List Values (right click Add/Remove)",
+		int result = JOptionPane.showConfirmDialog(B,table, "List Values (right click Add/Remove)",
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
 		if(result == 0)
 		{
 			System.out.println("ok");
 
-			int numRows = table.getRowCount();
-			int numCols = table.getColumnCount();
+			int numRows = table.model.getRowCount();
+			int numCols = table.model.getColumnCount();
 						
-			Object Data[][] = getTableData(table);
+			Object Data[][] = table.getTableData();
 			ActiveKeys.get(k).Paras.get(p).Data = Data;
 			
 			System.out.println("Value of data: ");

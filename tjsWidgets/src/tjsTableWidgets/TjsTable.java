@@ -26,11 +26,12 @@ public class TjsTable extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 	private boolean DEBUG = false;
-
+	public TjsTableModel model;
+	
     public TjsTable(String[] columnNames, Object data[][], Container parentCont) {
         super(new GridLayout(1,0));
-
-        final JTable table = new JTable(new TjsTableModel(columnNames,data));
+        model = new TjsTableModel(columnNames,data);
+        final JTable table = new JTable(model);
         final int Cols = table.getColumnCount();
         int Csize = Cols*75;
         
@@ -82,10 +83,17 @@ public class TjsTable extends JPanel {
         add(scrollPane);
     }
 
-	
+    public Object[][] getTableData () {
+	    int nRow = model.getRowCount(), nCol = model.getColumnCount();
+	    Object[][] tableData = new Object[nRow][nCol];
+	    for (int i = 0 ; i < nRow ; i++)
+	        for (int j = 0 ; j < nCol ; j++)
+	            tableData[i][j] = model.getValueAt(i,j);
+	    return tableData;
+	}
 	
     
-    class TjsTableModel extends AbstractTableModel {
+    public class TjsTableModel extends AbstractTableModel {
         /**
 		 * 
 		 */
@@ -99,15 +107,7 @@ public class TjsTable extends JPanel {
 			data = d;
 		}
 
-		public Object[][] getTableData (JTable table) {
-		    TjsTableModel dtm = (TjsTableModel) table.getModel();
-		    int nRow = dtm.getRowCount(), nCol = dtm.getColumnCount();
-		    Object[][] tableData = new Object[nRow][nCol];
-		    for (int i = 0 ; i < nRow ; i++)
-		        for (int j = 0 ; j < nCol ; j++)
-		            tableData[i][j] = dtm.getValueAt(i,j);
-		    return tableData;
-		}
+		
 
 		private Object[] DuplicateRowData(int row)
 		{
