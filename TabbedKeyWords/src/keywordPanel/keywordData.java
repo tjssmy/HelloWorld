@@ -120,7 +120,20 @@ public class keywordData {
 		}
 		else if (P.Type == ParaType.List)
 		{
-			data = null; // default
+			if (P.ListDim == 1 && P.ListType == ParaListType.Double)
+			{
+				Double[][] D = new Double[1][1];
+				D[0][0] = new Double(0.0);
+				data = (Object)D;
+			} 
+			else if (P.ListDim == 1 && P.ListType == ParaListType.Integer)
+			{
+				Integer[][] I = new Integer[1][1];
+				I[0][0] = new Integer(0);
+				data = (Object)I;
+			}
+
+			
 		}
 		
 		ParaData Pr = new ParaData(Name,P.Type,data,List,P.ListDim,P.ListType,P.ListNum);
@@ -183,13 +196,14 @@ public class keywordData {
 			
 			
 	}
+
 	
 	public void SetDouble3Data(int k, int p, JButton B)
 	{
 //		
 		ParaData P = ActiveKeys.get(k).Paras.get(p);
 		
-		int Cols = P.ListDim;
+		final int Cols = P.ListDim;
 //		int Rows = P.ListNum;
 		
 		Object[] columnNames = new String[Cols];
@@ -199,22 +213,29 @@ public class keywordData {
 		if (Cols == 3) columnNames[2] = "3";
 		
 		Object[][] data = (Object[][]) P.Data;
+		int CSize = Cols*50;
 		
 		DefaultTableModel model = new DefaultTableModel(data, columnNames);
 		final JTable table = new JTable(model);
-		table.setPreferredScrollableViewportSize(new Dimension(500, 150));
+		table.setPreferredScrollableViewportSize(new Dimension(CSize, 200));
 		table.setFillsViewportHeight(true);
+		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+		Object D = dtm.getValueAt(0, 0);
+		
 		table.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-
+				
+				if (e.getButton() == MouseEvent.BUTTON1) return;
+				
 				Object[] options = { "Add Row", "Delete Row" };
-				int ret = JOptionPane.showOptionDialog(null, "Make A Choice", "Add/Delete",
+				int ret = JOptionPane.showOptionDialog(table, "Make A Choice", "Add/Delete",
 						JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
 						null, options, options[0]);
 
 				DefaultTableModel model = (DefaultTableModel) table.getModel();
 				int[] rows = table.getSelectedRows();
 
+				
 				if (ret == 1)
 				{
 					for(int i=0;i<rows.length;i++){
@@ -223,13 +244,27 @@ public class keywordData {
 				}
 				else // ret == 0
 				{
-					String[] NewRow = {"n1","n2","n3"}; 
-					model.insertRow(rows[0]+1,NewRow);
+					Double[]  NewRow = new Double[Cols];
+					NewRow[0] = new Double(0.0);
+					
+					if ( Cols == 2) {
+						NewRow[1] = new Double(0.0);
+					}
+					else if (Cols == 3) {
+						NewRow[2] = new Double(0.0);
+					}
+					
+					if (rows.length == 0) {
+						model.insertRow(table.getRowCount()+1,NewRow); // put at end
+					} else 
+					{
+						model.insertRow(rows[0]+1,NewRow);
+					}
 				}
 			}});
 		JScrollPane Jp = new JScrollPane(table);
 
-		int result = JOptionPane.showConfirmDialog(B,Jp, "List Values",
+		int result = JOptionPane.showConfirmDialog(B,Jp, "List Values (right click Add/Remove)",
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
 		if(result == 0)
@@ -238,13 +273,15 @@ public class keywordData {
 
 			int numRows = table.getRowCount();
 			int numCols = table.getColumnCount();
-			DefaultTableModel model1 = (DefaultTableModel) table.getModel();
-
+						
+			Object Data[][] = getTableData(table);
+			ActiveKeys.get(k).Paras.get(p).Data = Data;
+			
 			System.out.println("Value of data: ");
 			for (int i=0; i < numRows; i++) {
 				System.out.print("    row " + i + ":");
 				for (int j=0; j < numCols; j++) {
-					System.out.print("  " + model1.getValueAt(i, j));
+					System.out.print("  " + Data[i][j]);
 				}
 				System.out.println();
 			}
