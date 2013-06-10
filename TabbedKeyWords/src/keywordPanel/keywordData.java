@@ -204,16 +204,16 @@ public class keywordData {
 		
 		String[] columnNames = new String[Cols];
 		
-		columnNames[0] = "1";
-		if (Cols >= 2) columnNames[1] = "2";
-		if (Cols == 3) columnNames[2] = "3";
+		columnNames[0] = "X Value";
+		if (Cols >= 2) columnNames[1] = "Y Value";
+		if (Cols == 3) columnNames[2] = "Z Value";
 		
 		Object[][] data = (Object[][]) P.Data;
 		
 				
 		final TjsTable table = new TjsTable(columnNames,data,B);
 		
-		int result = JOptionPane.showConfirmDialog(B,table, "List Values (right click Add/Remove)",
+		int result = JOptionPane.showConfirmDialog(B,table, "List Values",
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
 		if(result == 0)

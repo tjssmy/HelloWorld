@@ -3,11 +3,13 @@ package tjsTableWidgets;
  * TableDemo.java requires no other files.
  */
 
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.DecimalFormat;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -15,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 
 /** 
  * TableDemo is just like SimpleTableDemo, except that it
@@ -37,6 +40,12 @@ public class TjsTable extends JPanel {
         
         table.setPreferredScrollableViewportSize(new Dimension(Csize, 120));
         table.setToolTipText("Double click to edit cell. Right click to add/del rows");
+        
+        for (int i=0; i < Cols; i++)
+        {
+        	if (model.getValueAt(0, i) instanceof Double)
+        		table.getColumnModel().getColumn(i).setCellRenderer(new DecimalFormatRenderer() );
+        }
         
         table.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
@@ -92,6 +101,25 @@ public class TjsTable extends JPanel {
 	    return tableData;
 	}
 	
+    static class DecimalFormatRenderer extends DefaultTableCellRenderer {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private static final DecimalFormat formatter = new DecimalFormat( "##0.00E0" );
+ 
+		public Component getTableCellRendererComponent(
+			JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                        // First format the cell value as required
+
+			value = formatter.format((Number)value);
+
+                        // And pass it on to parent class 
+
+			return super.getTableCellRendererComponent(
+				table, value, isSelected, hasFocus, row, column );
+		} 
+	}
     
     public class TjsTableModel extends AbstractTableModel {
         /**
