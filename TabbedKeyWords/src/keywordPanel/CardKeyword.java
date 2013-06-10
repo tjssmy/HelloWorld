@@ -94,11 +94,11 @@ public class CardKeyword implements ItemListener {
 		ArrayList<String> List = P.ParaTypeList;
 
 		JPanel Entry = new JPanel();
-		Entry.setPreferredSize (new Dimension(350, 50));
+		Entry.setPreferredSize (new Dimension(400, 40));
 		Entry.setLayout(new GridLayout(1,2));
 		JLabel JL = new JLabel(Name);
 		JL.setText(Name);
-		JL.setBorder(new EmptyBorder(5, 15, 5, 15));
+		JL.setBorder(new EmptyBorder(0, 15, 0, 15));
 		Entry.add(JL);
 
 		switch(Type) {
@@ -218,18 +218,18 @@ public class CardKeyword implements ItemListener {
 		int j,t;
 		//Create the "cards".
 		JPanel card = new JPanel();
-		card.setPreferredSize (new Dimension(350, 800));
+		card.setPreferredSize (new Dimension(400, 800));
 
 		JTabbedPane JT = new JTabbedPane();
 
-
+		int numEntries = 18;
 
 		keywordPanel.keywordData.KeyData K = kData.ActiveKeys.get(k);
 		int n = K.numParas;
 
 
 		//		
-		int NumTabs = n/15+1;
+		int NumTabs = n/numEntries+1;
 
 		for (t = 0; t < NumTabs; t++)
 		{
@@ -237,8 +237,8 @@ public class CardKeyword implements ItemListener {
 			JPanel T1 = new JPanel();
 			T1.setLayout(new GridLayout(n,1));
 
-			start = t*15;
-			end = start+15;
+			start = t*numEntries;
+			end = start + numEntries;
 
 			if (end > n) end = n;
 
@@ -281,7 +281,7 @@ public class CardKeyword implements ItemListener {
 		final JComboBox cb = new JComboBox(kData.ActiveKeys.toArray());
 		cb.setEditable(false);
 		cb.addItemListener(this);
-		cb.setPreferredSize(new Dimension(150,20));
+		cb.setPreferredSize(new Dimension(200,20));
 
 		JComboBox cbDef = new JComboBox((kData.Keys.toArray()));
 		cbDef.setEditable(false);
@@ -365,18 +365,23 @@ public class CardKeyword implements ItemListener {
 		JPanel Buttons = new JPanel(); 
 		Buttons.setLayout(new GridLayout(1,3));
 
+		JButton ImportBut = new JButton("Merge File");
 		JButton ReadBut = new JButton("Read File");
 		JButton NewBut = new JButton("New File");
 		JButton WriteBut = new JButton("Write File");
-		JButton ExitBut = new JButton("Exit");
+		
 
 		//		forCards.add(new JLabel("here is space3"));
 
-		ExitBut.addActionListener(new ActionListener()
+		ImportBut.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				System.exit(0);
+				kData.readKeyFile();
+				keyfilePanel.removeAll();
+				addKeyWordPanel(keyfilePanel);
+				keyfilePanel.validate();
+				keyfilePanel.repaint();
 			}});
 
 		WriteBut.addActionListener(new ActionListener()
@@ -384,12 +389,14 @@ public class CardKeyword implements ItemListener {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				kData.writeKeyFile();
+				
 			}});
 
 		ReadBut.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				kData.ClearActiveKeys();
 				kData.readKeyFile();
 				keyfilePanel.removeAll();
 				addKeyWordPanel(keyfilePanel);
@@ -401,6 +408,7 @@ public class CardKeyword implements ItemListener {
 		{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				kData.ClearActiveKeys();
 				keyfilePanel.removeAll();
 				kData.LoadActiveKeys();
 				addKeyWordPanel(keyfilePanel);
@@ -411,8 +419,9 @@ public class CardKeyword implements ItemListener {
 
 		Buttons.add(NewBut);
 		Buttons.add(ReadBut);
+		Buttons.add(ImportBut);
 		Buttons.add(WriteBut);
-		Buttons.add(ExitBut);
+		
 
 		pane.add(Buttons, BorderLayout.PAGE_END);
 	}
@@ -420,7 +429,7 @@ public class CardKeyword implements ItemListener {
 	private void CreateKeywordCards(JPanel mainPanel)
 	{
 		keyfilePanel = new JPanel();
-		keyfilePanel.setPreferredSize(new Dimension(350,800));
+		keyfilePanel.setPreferredSize(new Dimension(400,800));
 		mainPanel.add(keyfilePanel);
 		//	keywordCards.addKeyWordPanel(ForCards);
 		//	keywordCards.addKeyWordPanel(frame.getContentPane());

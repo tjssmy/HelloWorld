@@ -95,7 +95,12 @@ public class keywordData {
 		}
 	}
 
-	private ParaData CopyPara(ParaData P)
+	public void ClearActiveKeys()
+	{
+		ActiveKeys.clear();
+	}
+	
+	private ParaData CopyPara(ParaData P) // this copies a default key not a modified key
 	{
 		String Name = new String(P.Name);
 		Object data = null;
@@ -116,16 +121,31 @@ public class keywordData {
 		}
 		else if (P.Type == ParaType.List)
 		{
-			if (P.ListDim == 1 && P.ListType == ParaListType.Double)
+			if (P.ListType == ParaListType.Double)
 			{
-				Double[][] D = new Double[1][1];
-				D[0][0] = new Double(0.0);
+				Double[][] D = new Double[1][P.ListDim];
+				
+				for (int i = 0; i < P.ListDim; i++)
+					D[0][i] = new Double(0.0);
+				
 				data = (Object)D;
 			} 
-			else if (P.ListDim == 1 && P.ListType == ParaListType.Integer)
+			else if (P.ListType == ParaListType.Integer)
 			{
-				Integer[][] I = new Integer[1][1];
-				I[0][0] = new Integer(0);
+				Integer[][] I = new Integer[1][P.ListDim];
+				
+				for (int i = 0; i < P.ListDim; i++)
+					I[0][i] = new Integer(0);
+				
+				data = (Object)I;
+			}
+			else if (P.ListType == ParaListType.String)
+			{
+				String[][] I = new String[1][P.ListDim];
+				
+				for (int i = 0; i < P.ListDim; i++)
+					I[0][i] = new String("");
+				
 				data = (Object)I;
 			}
 
@@ -343,6 +363,12 @@ public class keywordData {
 							{
 								PListDim = 3;
 								PListType = ParaListType.Double;
+								Double[][] D = new Double[1][3];
+								D[0][0] = new Double(0.0);
+								D[0][1] = new Double(0.0);
+								D[0][2] = new Double(0.0);
+								PListNum = 1;
+								data = (Object)D;
 							}
 							else if (toks[3].equals("int"))
 							{
@@ -545,6 +571,13 @@ public class keywordData {
 		return null;
 	}
 	
+	private void KeywordError(String Msg)
+	{
+		Msg = String.format("Bad Keyword in file: %s\n",Msg);
+		JOptionPane.showMessageDialog(null,Msg);
+		System.exit(1);
+	};
+	
 	public void readKeyFile(){
 
 		String origToks[];
@@ -554,6 +587,11 @@ public class keywordData {
 		File file = null;
 		KeyData Key;
 
+		if (!ActiveKeys.isEmpty())
+		{
+			ActiveKeys.remove(ActiveKeys.size()-1); // Remove dummy key for gui
+		}
+		
 		fc = new JFileChooser(System.getProperty("user.dir"));
 		int returnVal = fc.showOpenDialog(null);
 
@@ -572,6 +610,10 @@ public class keywordData {
 
 			while ((sCurrentLine = br.readLine()) != null)
 			{
+				sCurrentLine = sCurrentLine.replace("]"," ] ");
+				sCurrentLine = sCurrentLine.replace("["," [ ");
+				
+				
 				origToks = sCurrentLine.split("\\s+");
 				
 
@@ -622,11 +664,9 @@ public class keywordData {
 									Double D = Double.parseDouble(dataStr);
 									P.Data = (Object) D;
 								}
-								catch (NumberFormatException e) 
-								{
-									JOptionPane.showMessageDialog(null,new String("Bad double in file"));
-									System.exit(1);	
-								}
+								catch (NumberFormatException e)
+								{ KeywordError("Bad double in file");} 
+								
 							}
 							else if (P.Type == ParaType.Integer)
 							{
@@ -635,10 +675,7 @@ public class keywordData {
 									P.Data = (Object) I;
 								}
 								catch (NumberFormatException e) 
-								{
-									JOptionPane.showMessageDialog(null,new String("Bad Integer in file"));
-									System.exit(1);	
-								}
+								{ KeywordError("Bad Integer in file");}
 							}
 							else if  (P.Type == ParaType.EnumType || P.Type == ParaType.String)
 							{
@@ -646,52 +683,83 @@ public class keywordData {
 									String S = new String(dataStr);
 									P.Data = (Object) S;
 								}
-								catch (NumberFormatException e) 
-								{
-									JOptionPane.showMessageDialog(null,new String("Bad String in file"));
-									System.exit(1);	
-								}
+								catch (NumberFormatException e)
+								{ KeywordError("Bad String in file");}
 							}
 							else if  (P.Type == ParaType.List)
 							{
 								ArrayList<ArrayList<Object>> dataArray = new ArrayList<ArrayList<Object>>(); 						
 								
-//								Ps = Ps + String.format(" %s = [ ",P.Name);	
-//								
-//								for (int r=0; r < dataStr.length; r++) 
-//								{
-//									if (Para.ListDim == 1)
-//										Ps = Ps + dataStr[r][0] + " ";
-//									else if (Para.ListDim == 2)
-//										Ps = Ps + "[ " + dataStr[r][0] + " " +  dataStr[r][1] + "]";
-//									else if (Para.ListDim == 3)
-//										Ps = Ps + "[ " + dataStr[r][0] + " " +  dataStr[r][1] + " " + dataStr[r][2] + "]";
-//
-//								}
-//								Ps = Ps + "]";
+								if (!dataStr.equals("[")){
+									KeywordError("Bad List in file");
+									}
+																
+								try {
+									
+									while (!toks.get(i).equals("]"))
+									{
+										ArrayList<Object> temp = new ArrayList<Object>();
+										
+										if (P.ListDim != 1)  
+										{
+											if (!toks.get(i).equals("[")){ KeywordError("Bad List in file");}
+											i++;
+										}
+										
+										for (int c = 0; c < P.ListDim; c++)
+										{
+											dataStr = toks.get(i);
+											
+											if (P.ListType == ParaListType.Double)
+												temp.add(new Double(dataStr));
+											else if (P.ListType == ParaListType.Integer)
+												temp.add(new Integer(dataStr));
+											else if (P.ListType == ParaListType.String)
+												temp.add(new String(dataStr));
+
+											i++;
+										}
+										
+										dataArray.add(temp);
+										
+										if (P.ListDim != 1)
+										{
+											if (!toks.get(i).equals("]")){ KeywordError("Bad List in file");}
+											i++;
+										}
+									}
+									
+									i++;
+									
+									int r = dataArray.size();
+									int c = dataArray.get(0).size();
+									
+									Object[][] data = new Object[r][c];
+									
+									for (int k = 0; k < r; k++)
+									{
+										for (int j = 0; j < c; j++)
+											data[k][j] = dataArray.get(k).get(j);
+									}
+									
+									P.Data = data;
+									
+								}
+								catch (NumberFormatException e)
+								{ KeywordError("Bad String in file");}
+
 							}
 							else 
-							{
-								JOptionPane.showMessageDialog(null,new String("Bad Keyword in file"));
-								System.exit(1);
-							}
-							
-//							ReplacePara(PList,P);
+							{ KeywordError("Bad Parameter in file");}
 						}
-						else 
-						{
-							JOptionPane.showMessageDialog(null,new String("Bad parameter in file"));
-							System.exit(1);
-						}
+						else
+						{ KeywordError("Bad Parameter in file");}
 					}
 
 					ActiveKeys.add(NewKey);
 				}
-				else{
-					JOptionPane.showMessageDialog(null,new String("Bad Keyword in file"));
-					System.exit(1);
-				}
-
+				else
+				{ KeywordError("Bad Keyword in file");}
 			}
 
 		} catch ( IOException e ) {
@@ -757,12 +825,12 @@ public class keywordData {
 								if (Para.ListDim == 1)
 									Ps = Ps + Data[r][0] + " ";
 								else if (Para.ListDim == 2)
-									Ps = Ps + "[ " + Data[r][0] + " " +  Data[r][1] + "]";
+									Ps = Ps + " [ " + Data[r][0] + " " +  Data[r][1] + " ] ";
 								else if (Para.ListDim == 3)
-									Ps = Ps + "[ " + Data[r][0] + " " +  Data[r][1] + " " + Data[r][2] + "]";
+									Ps = Ps + " [ " + Data[r][0] + " " +  Data[r][1] + " " + Data[r][2] + "]";
 
 							}
-							Ps = Ps + "]";
+							Ps = Ps + " ] ";
 						}
 					}
 				}
