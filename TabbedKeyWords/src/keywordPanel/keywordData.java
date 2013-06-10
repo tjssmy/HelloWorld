@@ -184,19 +184,6 @@ public class keywordData {
 
 	public void SetListData(int k, int p, JButton B)
 	{
-//		ParaData P = ActiveKeys.get(k).Paras.get(p);
-		
-//		if (P.ListType == ParaListType.Double && P.ListDim == 3)
-			SetDouble3Data(k,p,B);
-			
-			
-			
-	}
-
-	
-	public void SetDouble3Data(int k, int p, JButton B)
-	{
-//		
 		ParaData P = ActiveKeys.get(k).Paras.get(p);
 		
 		final int Cols = P.ListDim;
@@ -242,6 +229,9 @@ public class keywordData {
 			System.out.println("cancel");
 		}
 
+		(ActiveKeys.get(k)).Paras.get(p).Modified = 1;
+		(ActiveKeys.get(k)).Modified = 1;
+		
 	}
 	
 	public void LoadActiveKeys()
@@ -604,20 +594,20 @@ public class keywordData {
 					int i=1;			
 					while ( i < n)
 					{
-						String paraName,Data;
+						String paraName,dataStr;
 						paraName = toks.get(i);
 
 						if (paraName.contains("="))
 						{
 							String ParaEq[] = paraName.split("=");
 							paraName = ParaEq[0];
-							Data = ParaEq[1];
+							dataStr = ParaEq[1];
 							i++;
 						}
 						else 
 						{
 							i = i + 2; //Advance over equals
-							Data = toks.get(i);
+							dataStr = toks.get(i);
 							i++;
 						}
 
@@ -629,7 +619,7 @@ public class keywordData {
 							if (P.Type == ParaType.Double)
 							{
 								try {
-									Double D = Double.parseDouble(Data);
+									Double D = Double.parseDouble(dataStr);
 									P.Data = (Object) D;
 								}
 								catch (NumberFormatException e) 
@@ -641,7 +631,7 @@ public class keywordData {
 							else if (P.Type == ParaType.Integer)
 							{
 								try {
-									Integer I = Integer.parseInt(Data);
+									Integer I = Integer.parseInt(dataStr);
 									P.Data = (Object) I;
 								}
 								catch (NumberFormatException e) 
@@ -653,7 +643,7 @@ public class keywordData {
 							else if  (P.Type == ParaType.EnumType || P.Type == ParaType.String)
 							{
 								try {
-									String S = new String(Data);
+									String S = new String(dataStr);
 									P.Data = (Object) S;
 								}
 								catch (NumberFormatException e) 
@@ -662,7 +652,24 @@ public class keywordData {
 									System.exit(1);	
 								}
 							}
-
+							else if  (P.Type == ParaType.List)
+							{
+								ArrayList<ArrayList<Object>> dataArray = new ArrayList<ArrayList<Object>>(); 						
+								
+//								Ps = Ps + String.format(" %s = [ ",P.Name);	
+//								
+//								for (int r=0; r < dataStr.length; r++) 
+//								{
+//									if (Para.ListDim == 1)
+//										Ps = Ps + dataStr[r][0] + " ";
+//									else if (Para.ListDim == 2)
+//										Ps = Ps + "[ " + dataStr[r][0] + " " +  dataStr[r][1] + "]";
+//									else if (Para.ListDim == 3)
+//										Ps = Ps + "[ " + dataStr[r][0] + " " +  dataStr[r][1] + " " + dataStr[r][2] + "]";
+//
+//								}
+//								Ps = Ps + "]";
+							}
 							else 
 							{
 								JOptionPane.showMessageDialog(null,new String("Bad Keyword in file"));
@@ -738,6 +745,24 @@ public class keywordData {
 						}
 						else if (T == ParaType.EnumType) {
 							Ps =  Ps + String.format(" %s = %s ",Para.Name,(String)Para.Data);	
+						}
+						else if (T == ParaType.List)
+						{
+							Object[][] Data = (Object[][]) Para.Data;
+							
+							Ps = Ps + String.format(" %s = [ ",Para.Name);	
+							
+							for (int r=0; r < Data.length; r++) 
+							{
+								if (Para.ListDim == 1)
+									Ps = Ps + Data[r][0] + " ";
+								else if (Para.ListDim == 2)
+									Ps = Ps + "[ " + Data[r][0] + " " +  Data[r][1] + "]";
+								else if (Para.ListDim == 3)
+									Ps = Ps + "[ " + Data[r][0] + " " +  Data[r][1] + " " + Data[r][2] + "]";
+
+							}
+							Ps = Ps + "]";
 						}
 					}
 				}

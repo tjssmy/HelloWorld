@@ -106,7 +106,7 @@ public class TjsTable extends JPanel {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private static final DecimalFormat formatter = new DecimalFormat( "##0.00E0" );
+		private static final DecimalFormat formatter = new DecimalFormat( "##0.00###E0" );
  
 		public Component getTableCellRendererComponent(
 			JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
